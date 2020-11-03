@@ -1,0 +1,97 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 27600feb58f950924c8c9775d39ac4f0b05bdd33e2e2a0c54514b92e5fd0e801
+
+name:           spacemonkey
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/spacemonkey#readme>
+homepage:       https://github.com/tkuriyama/spacemonkey#readme
+bug-reports:    https://github.com/tkuriyama/spacemonkey/issues
+author:         Taro Kuriyama
+maintainer:     taro@tarokuriyama.com
+copyright:      2020 Taro Kuriyama
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+    ChangeLog.md
+
+source-repository head
+  type: git
+  location: https://github.com/tkuriyama/spacemonkey
+
+library
+  exposed-modules:
+      Modules.HelloServer
+  other-modules:
+      Paths_spacemonkey
+  hs-source-dirs:
+      src
+  default-extensions: OverloadedStrings DeriveDataTypeable TemplateHaskell TypeFamilies
+  build-depends:
+      Spock >=0.11
+    , acid-state
+    , base >=4.7 && <5
+    , elm-bridge
+    , mtl
+    , safecopy
+    , text
+  default-language: Haskell2010
+
+executable spacemonkey-make
+  main-is: Main.hs
+  other-modules:
+      Paths_spacemonkey
+  hs-source-dirs:
+      make/
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2 -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
+  build-depends:
+      Spock >=0.11
+    , acid-state
+    , base >=4.7 && <5
+    , elm-bridge
+    , mtl
+    , safecopy
+    , spacemonkey
+    , text
+  default-language: Haskell2010
+
+executable spacemonkey-server
+  main-is: Main.hs
+  other-modules:
+      Paths_spacemonkey
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2 -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
+  build-depends:
+      Spock >=0.11
+    , acid-state
+    , base >=4.7 && <5
+    , mtl
+    , safecopy
+    , spacemonkey
+    , text
+  default-language: Haskell2010
+
+test-suite spacemonkey-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_spacemonkey
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2 -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
+  build-depends:
+      Spock >=0.11
+    , acid-state
+    , base >=4.7 && <5
+    , mtl
+    , safecopy
+    , spacemonkey
+    , text
+  default-language: Haskell2010

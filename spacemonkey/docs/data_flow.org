@@ -1,0 +1,11 @@
+# Data Flow 
+
+## Data Type Generation 
+
+1. Specifications for Haskell data types in `src/Modules/`, including acid-state functions 
+2. Make wrappers for elm-bridge in make/Main.hs
+3. Run the spacemonkey-make binary to for Elm codegen by elm-bridge
+4. Move Elm modules to spacemonkey/client/src/
+
+
+  
