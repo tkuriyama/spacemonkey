@@ -1,3 +1,5 @@
 **/elm-stuff/*
 **.redo/*
 client/tmp/*
+**/elm.js
+client/all
