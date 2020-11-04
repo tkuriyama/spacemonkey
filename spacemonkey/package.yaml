@@ -68,22 +68,32 @@ executables:
   spacemonkey-server:
     main:                Main.hs
     source-dirs:         server
+    default-extensions:
+      - DataKinds
+      - DeriveGeneric
+      - FlexibleInstances
+      - GeneralizedNewtypeDeriving
+      - MultiParamTypeClasses
+      - OverloadedStrings
+      - RankNTypes
+      - ScopedTypeVariables
+      - TypeOperators
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N    
-    - -O2
-    - -Wall
-    - -Wcompat
-    - -Wincomplete-record-updates
-    - -Wincomplete-uni-patterns
-    - -Wredundant-constraints
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N    
+      - -O2
+      - -Wall
+      - -Wcompat
+      - -Wincomplete-record-updates
+      - -Wincomplete-uni-patterns
+      - -Wredundant-constraints
     dependencies:
-    - spacemonkey
-    - aeson
-    - servant-server
-    - wai
-    - warp
+      - spacemonkey
+      - aeson
+      - servant-server
+      - wai
+      - warp
 
 tests:
   spacemonkey-test:
