@@ -36,6 +36,7 @@ library:
     - TypeFamilies
     - TypeOperators
     - DataKinds
+#    - DeriveGenerics
   dependencies:
     - elm-bridge
     - servant-elm
@@ -43,7 +44,12 @@ library:
 executables:
   spacemonkey-make:
     main:                Main.hs
-    source-dirs:         make/    
+    source-dirs:         make/
+    default-extensions:
+      - DataKinds
+      - OverloadedStrings
+      - TemplateHaskell
+      - TypeOperators
     ghc-options:
     - -threaded
     - -rtsopts
@@ -61,7 +67,7 @@ executables:
     
   spacemonkey-server:
     main:                Main.hs
-    source-dirs:         app
+    source-dirs:         server
     ghc-options:
     - -threaded
     - -rtsopts

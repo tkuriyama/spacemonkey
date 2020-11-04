@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: d0dfa3982a92308f95e15fb7dc9ce64e8af0f5ea8b49fa857ad216349ae21fbf
+-- hash: 926a69ac50243c98a7600582ee5ef24e3990a533bccc4248736d91493649883f
 
 name:           spacemonkey
 version:        0.1.0.0
@@ -45,9 +45,11 @@ library
 executable spacemonkey-make
   main-is: Main.hs
   other-modules:
+      Make.HelloServer
       Paths_spacemonkey
   hs-source-dirs:
       make/
+  default-extensions: DataKinds OverloadedStrings TemplateHaskell TypeOperators
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2 -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
@@ -64,7 +66,7 @@ executable spacemonkey-server
   other-modules:
       Paths_spacemonkey
   hs-source-dirs:
-      app
+      server
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2 -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
       aeson
