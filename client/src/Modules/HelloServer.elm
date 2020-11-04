@@ -4,7 +4,7 @@ import String exposing (fromInt)
 
 import Http
 import Browser exposing (element)
-import Html exposing (Html, div, text, button, input)
+import Html exposing (Html, div, text, button, input, br)
 import Html.Attributes exposing (class, value, placeholder)
 import Html.Events exposing (onClick)
 
@@ -30,8 +30,9 @@ init _ = (initModel, getModel)
 view : Model -> Html Msg
 view m =
     div []
-        [ text ("Server State: " ++ m.serverState.state )
-        , text (" | Server State: " ++ fromInt m.serverState.counter ++ "   ")            
+        [ text ("Server State String: " ++ m.serverState.state )
+        , br [] []
+        , text ("Server State Counter: " ++ fromInt m.serverState.counter ++ "    ")
         , button [ onClick IncrementCtr ] [ text "+1" ]
         ]
 
