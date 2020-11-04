@@ -36,7 +36,7 @@ library:
     - TypeFamilies
     - TypeOperators
     - DataKinds
-#    - DeriveGenerics
+    - DeriveGeneric
   dependencies:
     - elm-bridge
     - servant-elm

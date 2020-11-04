@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 926a69ac50243c98a7600582ee5ef24e3990a533bccc4248736d91493649883f
+-- hash: 74e72f3c4564f32eff269f060004941f82444321e6c8bfee79bb91e5bd0efe3a
 
 name:           spacemonkey
 version:        0.1.0.0
@@ -32,7 +32,7 @@ library
       Paths_spacemonkey
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings DeriveDataTypeable TemplateHaskell TypeFamilies TypeOperators DataKinds
+  default-extensions: OverloadedStrings DeriveDataTypeable TemplateHaskell TypeFamilies TypeOperators DataKinds DeriveGeneric
   build-depends:
       base >=4.7 && <5
     , elm-bridge
