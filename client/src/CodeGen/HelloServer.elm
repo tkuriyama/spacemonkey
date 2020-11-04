@@ -1,4 +1,4 @@
-module HelloServer exposing(..)
+module CodeGen.HelloServer exposing(..)
 
 import Json.Decode
 import Json.Encode exposing (Value)
