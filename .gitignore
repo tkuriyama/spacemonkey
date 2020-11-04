@@ -3,3 +3,4 @@
 client/tmp/*
 **/elm.js
 client/all
+spacemonkey/dist/*
