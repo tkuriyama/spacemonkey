@@ -21,11 +21,11 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
   - base >= 4.7 && < 5
-  - Spock >=0.11
   - mtl
   - text
-  - acid-state
-  - safecopy
+  - servant
+#  - acid-state
+#  - safecopy
   
 library:
   source-dirs: src
@@ -34,13 +34,16 @@ library:
     - DeriveDataTypeable
     - TemplateHaskell
     - TypeFamilies
+    - TypeOperators
+    - DataKinds
   dependencies:
     - elm-bridge
+    - servant-elm
     
 executables:
   spacemonkey-make:
     main:                Main.hs
-    source-dirs:         make/
+    source-dirs:         make/    
     ghc-options:
     - -threaded
     - -rtsopts
@@ -54,6 +57,7 @@ executables:
     dependencies:
     - spacemonkey
     - elm-bridge
+    - servant-elm
     
   spacemonkey-server:
     main:                Main.hs
@@ -70,6 +74,10 @@ executables:
     - -Wredundant-constraints
     dependencies:
     - spacemonkey
+    - aeson
+    - servant-server
+    - wai
+    - warp
 
 tests:
   spacemonkey-test:
