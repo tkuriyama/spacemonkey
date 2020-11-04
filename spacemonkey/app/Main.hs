@@ -1,28 +1,67 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators #-}
+
 module Main where
 
-import Web.Spock
-import Web.Spock.Config
+-- import Prelude.Compat
 
-import Control.Monad.Trans
+-- import Control.Monad.Except
+-- import Control.Monad.Reader
+-- import Data.Aeson
+-- import Data.Aeson.Types
+-- import Data.Attoparsec.ByteString
+-- import Data.ByteString (ByteString)
+-- import Data.List
+-- import Data.Maybe
+import Control.Monad.IO.Class (liftIO)
 import Data.IORef
--- import Data.Monoid
-import qualified Data.Text as T
+import Data.Proxy
+-- import Data.String.Conversions
+-- import Data.Time.Calendar
+-- import GHC.Generics
+-- import Lucid
+-- import Network.HTTP.Media ((//), (/:))
+import Network.Wai
+import Network.Wai.Handler.Warp
+import Servant.API
+import Servant.Server
+-- import System.Directory
+-- import Text.Blaze
+-- import Text.Blaze.Html.Renderer.Utf8
+-- import Servant.Types.SourceT (source)
+-- import qualified Data.Aeson.Parser
+-- import qualified Text.Blaze.Html
 
-data MySession = EmptySession
-data MyAppState = DummyAppState (IORef Int)
+-- data ServerState = ServerState { state :: String
+--                                , counter :: Int }
+--   deriving (Generic)
+
+import qualified Modules.HelloServer as HS
+
+server :: IORef HS.ServerState -> Server HS.ServantAPI
+server ref = query :<|> update
+  where
+  query :: Handler HS.ServerState
+  query = liftIO $ readIORef ref
+  update :: Int -> Handler HS.ServerState
+  update counter = liftIO $ atomicModifyIORef' ref $ \st ->
+    let st' = st { HS.counter = counter }
+    in  (st', st')
+  
+servantAPI :: Proxy HS.ServantAPI
+servantAPI = Proxy
+
+app :: IORef HS.ServerState -> Application
+app ref = serve servantAPI $ server ref
 
 main :: IO ()
-main =
-    do ref <- newIORef 0
-       spockCfg <- defaultSpockCfg EmptySession PCNoDatabase (DummyAppState ref)
-       runSpock 8080 (spock spockCfg app)
-
-app :: SpockM () MySession MyAppState ()
-app =
-    do get root $
-           text "Hello World!"
-       get ("hello" <//> var) $ \name ->
-           do (DummyAppState ref) <- getState
-              visitorNumber <- liftIO $ atomicModifyIORef' ref $ \i -> (i+1, i+1)
-              text ("Hello " <> name <> ", you are visitor number " <> T.pack (show visitorNumber))
+main = do
+  ref <- newIORef $ HS.ServerState "Hello" 42
+  run 8080 $ app ref
