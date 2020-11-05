@@ -2,19 +2,17 @@ module Server.HelloServerAcid where
 
 import           Control.Monad.IO.Class (liftIO)
 import           Control.Monad.Reader (ask, ReaderT, runReaderT)
--- import           Control.Monad.State  (get, put)
--- import           Control.Exception (bracket)
+import           Control.Exception (bracket)
 
 -- import           Data.IORef
 import           Data.Proxy
 
 import           Network.Wai
 import           Network.Wai.Handler.Warp
-import           Servant.API 
+import           Servant.API
 import           Servant.Server
 
 import           Data.Acid
--- import           Data.SafeCopy
 
 import qualified Modules.HelloServerAcid as HSA
 
@@ -49,8 +47,12 @@ updateServer ctr' = do
 --------------------------------------------------------------------------------
 
 main :: IO ()
-main = do
-  st <- openLocalStateFrom "db" (HSA.ServerState "Hello" 42)
-  let env = Env { state = st }
-  run 8080 $ app env
-  closeAcidState st
+main = bracket
+  (openLocalStateFrom "db" (HSA.ServerState "Hello" 42))
+  (\acid -> createCheckpoint acid >> closeAcidState acid)
+  (\acid -> let env = Env { state = acid }
+            in run 8080 $ app env)
+  -- st <- openLocalStateFrom "db" (HSA.ServerState "Hello" 42)
+  -- let env = Env { state = st }
+  -- run 8080 $ app env
+  -- closeAcidState st

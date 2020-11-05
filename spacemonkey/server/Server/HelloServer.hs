@@ -20,7 +20,7 @@ server ref = query :<|> update
   update counter = liftIO $ atomicModifyIORef' ref $ \st ->
     let st' = st { HS.counter = counter }
     in  (st', st')
-  
+
 servantAPI :: Proxy HS.ServantAPI
 servantAPI = Proxy
 
