@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 368d51bff51addcb483cf488dac7f85e6bffcf2f3dc71335394f593c1c54f976
+-- hash: 2e11e8d108187a4680bd7e1c1ba534bb300f31da3827db1dc40ec232cf8110bd
 
 name:           spacemonkey
 version:        0.1.0.0
@@ -28,15 +28,18 @@ source-repository head
 library
   exposed-modules:
       Modules.HelloServer
+      Modules.HelloServerAcid
   other-modules:
       Paths_spacemonkey
   hs-source-dirs:
       src
   default-extensions: OverloadedStrings DeriveDataTypeable TemplateHaskell TypeFamilies TypeOperators DataKinds DeriveGeneric
   build-depends:
-      base >=4.7 && <5
+      acid-state
+    , base >=4.7 && <5
     , elm-bridge
     , mtl
+    , safecopy
     , servant
     , servant-elm
     , text
@@ -46,15 +49,18 @@ executable spacemonkey-make
   main-is: Main.hs
   other-modules:
       Make.HelloServer
+      Make.HelloServerAcid
       Paths_spacemonkey
   hs-source-dirs:
       make/
   default-extensions: DataKinds OverloadedStrings TemplateHaskell TypeOperators
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2 -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
-      base >=4.7 && <5
+      acid-state
+    , base >=4.7 && <5
     , elm-bridge
     , mtl
+    , safecopy
     , servant
     , servant-elm
     , spacemonkey
@@ -65,15 +71,18 @@ executable spacemonkey-server
   main-is: Main.hs
   other-modules:
       Server.HelloServer
+      Server.HelloServerAcid
       Paths_spacemonkey
   hs-source-dirs:
       server
   default-extensions: DataKinds DeriveGeneric FlexibleInstances GeneralizedNewtypeDeriving MultiParamTypeClasses OverloadedStrings RankNTypes ScopedTypeVariables TypeOperators
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2 -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
-      aeson
+      acid-state
+    , aeson
     , base >=4.7 && <5
     , mtl
+    , safecopy
     , servant
     , servant-server
     , spacemonkey
@@ -91,8 +100,10 @@ test-suite spacemonkey-test
       test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2 -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
-      base >=4.7 && <5
+      acid-state
+    , base >=4.7 && <5
     , mtl
+    , safecopy
     , servant
     , spacemonkey
     , text

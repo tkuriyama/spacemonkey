@@ -24,8 +24,8 @@ dependencies:
   - mtl
   - text
   - servant
-#  - acid-state
-#  - safecopy
+  - acid-state
+  - safecopy
   
 library:
   source-dirs: src
@@ -51,19 +51,19 @@ executables:
       - TemplateHaskell
       - TypeOperators
     ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N    
-    - -O2
-    - -Wall
-    - -Wcompat
-    - -Wincomplete-record-updates
-    - -Wincomplete-uni-patterns
-    - -Wredundant-constraints
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N    
+      - -O2
+      - -Wall
+      - -Wcompat
+      - -Wincomplete-record-updates
+      - -Wincomplete-uni-patterns
+      - -Wredundant-constraints
     dependencies:
-    - spacemonkey
-    - elm-bridge
-    - servant-elm
+      - spacemonkey
+      - elm-bridge
+      - servant-elm
     
   spacemonkey-server:
     main:                Main.hs
