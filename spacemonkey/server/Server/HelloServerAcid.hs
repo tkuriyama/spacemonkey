@@ -52,7 +52,3 @@ main = bracket
   (\acid -> createCheckpoint acid >> closeAcidState acid)
   (\acid -> let env = Env { state = acid }
             in run 8080 $ app env)
-  -- st <- openLocalStateFrom "db" (HSA.ServerState "Hello" 42)
-  -- let env = Env { state = st }
-  -- run 8080 $ app env
-  -- closeAcidState st
