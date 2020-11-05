@@ -13,3 +13,7 @@ The build commands are wrapped with [redo](https://redo.readthedocs.io/en/latest
 
 `HelloServer` is Spacemonkey's Hello World. To get it to work with `localhost`, you willl ikely need some method of dealing with CORS issues (e.g. [this post](https://alfilatov.com/posts/run-chrome-without-cors/)).
 
+## HelloServerAcid
+
+An iteration of `HelloServer` that is materially the same from the client's perspective (on the server side, the state is persistent to disk rather than just in memory).
+
