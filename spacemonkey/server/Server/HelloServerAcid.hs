@@ -19,7 +19,7 @@ import qualified Modules.HelloServerAcid as HSA
 type ReaderHandler = ReaderT Env Handler
 
 data Env = Env
-  { state :: AcidState HSA.ServerState }
+  { acidDB :: AcidState HSA.ServerState }
 
 app :: Env -> Application
 app env = serve servantAPI (server env)
@@ -35,14 +35,16 @@ serverT = queryServer :<|> updateServer
 
 queryServer :: ReaderHandler HSA.ServerState
 queryServer = do
-  (Env st) <- ask
-  liftIO $ query st HSA.QueryState
+  Env db <- ask
+  liftIO $ query db HSA.QueryState
 
 updateServer :: Int -> ReaderHandler HSA.ServerState
 updateServer ctr' = do
-  (Env st) <- ask
-  (HSA.ServerState s _) <- liftIO $ query st HSA.QueryState
-  liftIO $ update st (HSA.WriteState s ctr')
+  Env db <- ask
+  HSA.ServerState s _ <- liftIO $ query db HSA.QueryState
+  let st = HSA.ServerState s ctr'
+  liftIO $ update db (HSA.WriteState st)
+  pure st
 
 --------------------------------------------------------------------------------
 
@@ -50,5 +52,5 @@ main :: IO ()
 main = bracket
   (openLocalStateFrom "db" (HSA.ServerState "Hello" 42))
   (\acid -> createCheckpoint acid >> closeAcidState acid)
-  (\acid -> let env = Env { state = acid }
+  (\acid -> let env = Env { acidDB = acid }
             in run 8080 $ app env)
