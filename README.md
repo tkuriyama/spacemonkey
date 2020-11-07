@@ -13,4 +13,15 @@ At a high-level, the idea is to write Haskell ADTs as needed, then find strategi
 
 ## Build
 
-The build commands for `stack install`, `elm make`, etc are wrapped with [redo](https://redo.readthedocs.io/en/latest/). Running `redo all` in the project root (or the `clietn ` and `spacemonkey` subdirectory roots) triggers rebuilds, but `redo` is not required. The contents of all the `all.do` files can be run as individual shell commands. 
+The build commands for `stack install`, `elm make`, etc are wrapped with [redo](https://redo.readthedocs.io/en/latest/). Running `redo all` in the project root (or the `clietn ` and `spacemonkey` subdirectory roots) triggers rebuilds, but `redo` is not required. The contents of all the `all.do` files can be run as individual shell commands.
+
+
+## Run
+
+Whichever server that `spacemonkey/server/Main.hs` specifies will be built to the binary `spacemonkey-server` (in Stack's default build location -- on macOS, possibly something like `/Users/$USER/.local/bin/`).
+
+To start the server, run in the command line: `spacemonkey-server`
+
+THe server build also specifies the base URL (e.g. `localhost:8080`) and API endpoints, which are propagated into the generated Elm code.
+
+To start the Elm client, open `client/main.html` in the browser.

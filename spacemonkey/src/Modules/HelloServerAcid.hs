@@ -29,15 +29,10 @@ type ServantAPI =
 
 $(deriveSafeCopy 0 'base ''ServerState)
 
-writeState :: String -> Int -> Update ServerState ServerState
-writeState s i = do
-  let st = (ServerState s i)
-  put st
-  return st
+writeState :: ServerState -> Update ServerState ()
+writeState = put
 
 queryState :: Query ServerState ServerState
-queryState = do
-  st <- ask
-  return st
+queryState = ask
 
 $(makeAcidic ''ServerState ['writeState, 'queryState])
