@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 2e11e8d108187a4680bd7e1c1ba534bb300f31da3827db1dc40ec232cf8110bd
+-- hash: ef7fb8c042db4509cb3fe961fc0bc17087f4997e5f02c0cfadd6abbcab5ce892
 
 name:           spacemonkey
 version:        0.1.0.0
@@ -29,20 +29,27 @@ library
   exposed-modules:
       Modules.HelloServer
       Modules.HelloServerAcid
+      Modules.HelloServerPersist
   other-modules:
       Paths_spacemonkey
   hs-source-dirs:
       src
-  default-extensions: OverloadedStrings DeriveDataTypeable TemplateHaskell TypeFamilies TypeOperators DataKinds DeriveGeneric
+  default-extensions: DataKinds DeriveDataTypeable DeriveGeneric FlexibleContexts GeneralizedNewtypeDeriving MultiParamTypeClasses OverloadedStrings TemplateHaskell TypeFamilies TypeOperators
   build-depends:
       acid-state
     , base >=4.7 && <5
+    , conduit
     , elm-bridge
+    , monad-logger
     , mtl
+    , persistent
+    , persistent-sqlite
+    , persistent-template
     , safecopy
     , servant
     , servant-elm
     , text
+    , unliftio-core
   default-language: Haskell2010
 
 executable spacemonkey-make
@@ -50,6 +57,7 @@ executable spacemonkey-make
   other-modules:
       Make.HelloServer
       Make.HelloServerAcid
+      Make.HelloServerPersist
       Paths_spacemonkey
   hs-source-dirs:
       make/
@@ -58,13 +66,19 @@ executable spacemonkey-make
   build-depends:
       acid-state
     , base >=4.7 && <5
+    , conduit
     , elm-bridge
+    , monad-logger
     , mtl
+    , persistent
+    , persistent-sqlite
+    , persistent-template
     , safecopy
     , servant
     , servant-elm
     , spacemonkey
     , text
+    , unliftio-core
   default-language: Haskell2010
 
 executable spacemonkey-server
@@ -72,21 +86,28 @@ executable spacemonkey-server
   other-modules:
       Server.HelloServer
       Server.HelloServerAcid
+      Server.HelloServerPersist
       Paths_spacemonkey
   hs-source-dirs:
       server
-  default-extensions: DataKinds DeriveGeneric FlexibleInstances GeneralizedNewtypeDeriving MultiParamTypeClasses OverloadedStrings RankNTypes ScopedTypeVariables TypeOperators
+  default-extensions: DataKinds DeriveGeneric FlexibleContexts FlexibleInstances GeneralizedNewtypeDeriving MultiParamTypeClasses OverloadedStrings RankNTypes ScopedTypeVariables TypeOperators
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -O2 -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints
   build-depends:
       acid-state
     , aeson
     , base >=4.7 && <5
+    , conduit
+    , monad-logger
     , mtl
+    , persistent
+    , persistent-sqlite
+    , persistent-template
     , safecopy
     , servant
     , servant-server
     , spacemonkey
     , text
+    , unliftio-core
     , wai
     , warp
   default-language: Haskell2010
@@ -102,9 +123,15 @@ test-suite spacemonkey-test
   build-depends:
       acid-state
     , base >=4.7 && <5
+    , conduit
+    , monad-logger
     , mtl
+    , persistent
+    , persistent-sqlite
+    , persistent-template
     , safecopy
     , servant
     , spacemonkey
     , text
+    , unliftio-core
   default-language: Haskell2010

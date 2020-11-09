@@ -26,21 +26,30 @@ dependencies:
   - servant
   - acid-state
   - safecopy
-  
+  - persistent
+  - persistent-template
+  - persistent-sqlite
+  - conduit
+  - monad-logger
+  - unliftio-core
+
 library:
   source-dirs: src
   default-extensions:
-    - OverloadedStrings
+    - DataKinds
     - DeriveDataTypeable
+    - DeriveGeneric
+    - FlexibleContexts
+    - GeneralizedNewtypeDeriving
+    - MultiParamTypeClasses
+    - OverloadedStrings
     - TemplateHaskell
     - TypeFamilies
     - TypeOperators
-    - DataKinds
-    - DeriveGeneric
   dependencies:
     - elm-bridge
     - servant-elm
-    
+
 executables:
   spacemonkey-make:
     main:                Main.hs
@@ -53,7 +62,7 @@ executables:
     ghc-options:
       - -threaded
       - -rtsopts
-      - -with-rtsopts=-N    
+      - -with-rtsopts=-N
       - -O2
       - -Wall
       - -Wcompat
@@ -64,13 +73,14 @@ executables:
       - spacemonkey
       - elm-bridge
       - servant-elm
-    
+
   spacemonkey-server:
     main:                Main.hs
     source-dirs:         server
     default-extensions:
       - DataKinds
       - DeriveGeneric
+      - FlexibleContexts
       - FlexibleInstances
       - GeneralizedNewtypeDeriving
       - MultiParamTypeClasses
