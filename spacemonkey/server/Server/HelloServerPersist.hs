@@ -40,7 +40,7 @@ mkApp sqliteFile = do
   flip runSqlPersistMPool pool $ do
     ret <- selectFirst [HSP.ServerStateState ==. "Hello"] []
     case ret of
-      Nothing ->
+      Nothing -> do
         _ <- insert $ HSP.ServerState "Hello" 42
         liftIO $ return ()
       _ -> liftIO $ return ()
