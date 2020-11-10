@@ -1,11 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE EmptyDataDecls             #-}
-{-# LANGUAGE GADTs                      #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# LANGUAGE QuasiQuotes                #-}
-
 module Server.HelloServerPersist where
 
 import           Control.Exception (bracket)
