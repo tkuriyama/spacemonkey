@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: ef7fb8c042db4509cb3fe961fc0bc17087f4997e5f02c0cfadd6abbcab5ce892
+-- hash: 6d435784fc8655cefd0bfaef9393775a258c7fb45ccb0bf72c9d63ab74884ac4
 
 name:           spacemonkey
 version:        0.1.0.0
@@ -27,9 +27,11 @@ source-repository head
 
 library
   exposed-modules:
+      Helpers.SpacemonkeyEnum
       Modules.HelloServer
       Modules.HelloServerAcid
       Modules.HelloServerPersist
+      Modules.Spacemonkey
   other-modules:
       Paths_spacemonkey
   hs-source-dirs:
@@ -39,7 +41,9 @@ library
       acid-state
     , base >=4.7 && <5
     , conduit
+    , containers
     , elm-bridge
+    , http-api-data
     , monad-logger
     , mtl
     , persistent
@@ -58,6 +62,7 @@ executable spacemonkey-make
       Make.HelloServer
       Make.HelloServerAcid
       Make.HelloServerPersist
+      Make.Spacemonkey
       Paths_spacemonkey
   hs-source-dirs:
       make/
@@ -67,6 +72,7 @@ executable spacemonkey-make
       acid-state
     , base >=4.7 && <5
     , conduit
+    , containers
     , elm-bridge
     , monad-logger
     , mtl
@@ -87,6 +93,7 @@ executable spacemonkey-server
       Server.HelloServer
       Server.HelloServerAcid
       Server.HelloServerPersist
+      Server.Spacemonkey
       Paths_spacemonkey
   hs-source-dirs:
       server
@@ -97,6 +104,8 @@ executable spacemonkey-server
     , aeson
     , base >=4.7 && <5
     , conduit
+    , containers
+    , http-api-data
     , monad-logger
     , mtl
     , persistent
@@ -124,6 +133,7 @@ test-suite spacemonkey-test
       acid-state
     , base >=4.7 && <5
     , conduit
+    , containers
     , monad-logger
     , mtl
     , persistent
