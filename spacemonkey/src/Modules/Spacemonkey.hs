@@ -26,30 +26,33 @@ share
   [mkPersist sqlSettings , mkMigrate "migrateAll"]
   [persistLowerCase|
    World
-    env Environment
-    maxX Int
-    maxY Int
-    deriving Show Generic
+     env Environment
+     UniqueEnv env
+     maxX Int
+     maxY Int
+     deriving Show Generic
    Grid
-    env WorldId
-    x Int
-    y Int
-    cellColor Color default White
-    cellType CellType default Std
-    cellValue T.Text default ""
-    cellUser UserId Maybe
-    deriving Show Generic
-  Message
-   env WorldId
-   -- timestamp Int
-   -- sender UserId
-   value T.Text
-   deriving Show Generic
-  User
-   env WorldId
-   name T.Text
-   loc GridId
-   deriving Show Generic
+     env WorldId
+     x Int
+     y Int
+     UniqueCell env x y
+     cellColor Color default White
+     cellType CellType default Std
+     cellValue T.Text default ""
+     cellUser UserId Maybe
+     deriving Show Generic
+   Message
+     env WorldId
+     -- timestamp Int
+     -- sender UserId
+     value T.Text
+     deriving Show Generic
+   User
+     env WorldId
+     name T.Text
+     UniqueUser env name
+     loc GridId
+     deriving Show Generic
   |]
 
 
@@ -62,7 +65,8 @@ deriveBoth defaultOptions ''User
 
 -- Servant API definitions
 type API =
-       "getWorld" :> Capture "env" String :> Get '[JSON] (Maybe World)
+       "getWorld" :> Capture "env" Environment :>
+       Get '[JSON] (Maybe (WorldId, World))
   :<|> "getGrid" :> Capture "worldid" WorldId :> Get '[JSON] [Grid]
   :<|> "getMsgs" :> Capture "worldid" WorldId :>
        Capture "recentN" Int :> Get '[JSON] [Message]

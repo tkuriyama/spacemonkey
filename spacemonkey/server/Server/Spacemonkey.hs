@@ -12,16 +12,18 @@ import           Network.Wai.Handler.Warp
 import           Servant.API
 import           Servant.Server
 
-import           Database.Persist.Sqlite ( ConnectionPool, createSqlitePool
-                                         , runSqlPool, runSqlPersistMPool
-                                         , runMigration, selectFirst, (==.)
-                                         , entityVal, (+=.), (=.), updateWhere
-                                         , insert)
+import           Database.Persist.Sqlite
 
 import qualified Modules.Spacemonkey as SP
 import qualified Helpers.SpacemonkeyEnum as SPE
 
 --------------------------------------------------------------------------------
+
+main :: IO ()
+main = bracket
+  (mkApp "dbsqlite/spacemonkey.db")
+  (\_ -> pure ())
+  (\app' -> run 8080 $ app')
 
 mkApp :: FilePath -> IO Application
 mkApp sqliteFile = do
@@ -50,17 +52,28 @@ server pool = getWorld' :<|> getGrid' :<|> getMsgs' :<|> getUsers' :<|>
     getUsers' = liftIO . getUsers pool
     setGridColor' wid x y c = liftIO $ setGridColor pool wid x y c
 
-getWorld :: CP -> String -> IO (Maybe SP.World)
-getWorld pool s = undefined
+getWorld :: CP -> SPE.Environment -> IO (Maybe (SP.Key SP.World, SP.World))
+getWorld pool env = flip runSqlPersistMPool pool $ do
+  ret <- getBy $ SP.UniqueEnv env
+  case ret of
+    Nothing -> pure Nothing
+    (Just (Entity wid w)) -> pure $ Just (wid, w)
 
 getGrid :: CP -> SP.Key SP.World -> IO [SP.Grid]
-getGrid pool wid = undefined
+getGrid pool wid = flip runSqlPersistMPool pool $ do
+  entity <- selectList [SP.GridEnv ==. wid] []
+  pure $ entityVal <$> entity
 
 getMsgs  :: CP -> SP.Key SP.World -> Int -> IO [SP.Message]
-getMsgs pool wid n = undefined
+getMsgs pool wid n = flip runSqlPersistMPool pool $ do
+  entity <-
+    selectList [SP.MessageEnv ==. wid] [Desc SP.MessageId, LimitTo n]
+  pure $ entityVal <$> entity
 
 getUsers :: CP -> SP.Key SP.World -> IO [SP.User]
-getUsers pool wid = undefined
+getUsers pool wid = flip runSqlPersistMPool pool $ do
+  entity <- selectList [SP.UserEnv ==. wid] []
+  pure $ entityVal <$> entity
 
 setGridColor :: CP -> SP.Key SP.World -> Int -> Int -> SPE.Color -> IO SPE.Color
 setGridColor pool wid x y c = do
@@ -71,24 +84,3 @@ setGridColor pool wid x y c = do
   pure c
 
 
-  --   queryServer = liftIO runQuery
-  --   updateServer = liftIO $ incrementCtr >> runQuery
-
-  --   runQuery :: IO (Maybe SP.ServerState)
-  --   runQuery = flip runSqlPersistMPool pool $ do
-  --     ret <- selectFirst [SP.ServerStateState ==. "Hello"] []
-  --     return $ entityVal <$> ret
-
-  --   incrementCtr :: IO ()
-  --   incrementCtr = flip runSqlPersistMPool pool $ do
-  --     updateWhere
-  --       [SP.ServerStateState ==. "Hello" ]
-  --       [SP.ServerStateCounter +=. 1]
-
---------------------------------------------------------------------------------
-
-main :: IO ()
-main = bracket
-  (mkApp "dbsqlite/spacemonkey.db")
-  (\_ -> pure ())
-  (\app' -> run 8080 $ app')
