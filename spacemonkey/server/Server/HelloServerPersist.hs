@@ -4,7 +4,7 @@ import           Control.Exception (bracket)
 import           Control.Monad.IO.Class  (liftIO)
 -- import           Control.Monad.IO.Unlift
 import           Control.Monad.Logger (runStderrLoggingT)
--- import           Control.Monad.Reader (ask, ReaderT, runReaderT)
+
 import qualified Data.Text as T
 import           Data.Proxy
 
@@ -18,7 +18,6 @@ import           Database.Persist.Sqlite ( ConnectionPool, createSqlitePool
                                          , runMigration, selectFirst, (==.)
                                          , entityVal, (+=.), updateWhere
                                          , insert)
--- import           Conduit
 
 import qualified Modules.HelloServerPersist as HSP
 
