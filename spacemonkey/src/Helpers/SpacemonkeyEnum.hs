@@ -50,7 +50,7 @@ instance FromHttpApiData CellType where
 
 
 myParse :: (Show a, Enum a, Bounded a) => T.Text -> Either T.Text a
-myParse s = maybe (Left "cannot find color") Right $ M.lookup s m
+myParse s = maybe (Left "cannot find enum value") Right $ M.lookup s m
   where m = M.fromList $ map (\v -> (T.pack $ show v, v)) [minBound..maxBound]
 
 
