@@ -13,7 +13,7 @@ At a high-level, the idea is to write Haskell ADTs as needed, then find strategi
 
 ## Build
 
-The build commands for `stack install`, `elm make`, etc are wrapped with [redo](https://redo.readthedocs.io/en/latest/). Running `redo all` in the project root (or the `clietn ` and `spacemonkey` subdirectory roots) triggers rebuilds, but `redo` is not required. The contents of all the `all.do` files can be run as individual shell commands.
+The build commands for `stack install`, `elm make`, etc are wrapped with [redo](https://redo.readthedocs.io/en/latest/). Running `redo all` in the project root (or the `client` and `spacemonkey` subdirectory roots) triggers rebuilds, but `redo` is not required. The contents of all the `all.do` files can be run as individual shell commands.
 
 
 ## Run
