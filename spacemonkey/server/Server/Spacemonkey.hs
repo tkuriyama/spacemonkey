@@ -42,25 +42,36 @@ servantAPI = Proxy
 type CP = ConnectionPool
 
 server :: CP -> Server SP.API
-server pool = getWorld' :<|> getGrid' :<|> getMsgs' :<|> getUsers' :<|>
-             setGridColor'
+server pool =
+  getWorldId' :<|>
+  getWorld' :<|>
+  getCell' :<|>
+  getMsgs' :<|>
+  getUsers' :<|>
+  setCellColor'
   where
+    getWorldId' = liftIO . getWorldId pool
     getWorld' = liftIO . getWorld pool
-    getGrid' = liftIO . getGrid pool
+    getCell' = liftIO . getCell pool
     getMsgs' wid n = liftIO $ getMsgs pool wid n
     getUsers' = liftIO . getUsers pool
-    setGridColor' wid x y c = liftIO $ setGridColor pool wid x y c
+    setCellColor' wid x y c = liftIO $ setCellColor pool wid x y c
 
-getWorld :: CP -> SPE.Environment -> IO (Maybe (SP.Key SP.World, SP.World))
-getWorld pool env = flip runSqlPersistMPool pool $ do
+getWorldId :: CP -> SPE.Environment -> IO (Maybe (SP.Key SP.World))
+getWorldId pool env = flip runSqlPersistMPool pool $ do
   ret <- getBy $ SP.UniqueEnv env
   case ret of
     Nothing -> pure Nothing
-    (Just (Entity wid w)) -> pure $ Just (wid, w)
+    (Just (Entity wid _)) -> pure $ Just wid
 
-getGrid :: CP -> SP.Key SP.World -> IO [SP.Grid]
-getGrid pool wid = flip runSqlPersistMPool pool $ do
-  entity <- selectList [SP.GridEnv ==. wid] []
+getWorld :: CP -> SP.Key SP.World -> IO (Maybe SP.World)
+getWorld pool wid = flip runSqlPersistMPool pool $ do
+  ret <- get wid
+  pure ret
+
+getCell :: CP -> SP.Key SP.World -> IO [SP.Cell]
+getCell pool wid = flip runSqlPersistMPool pool $ do
+  entity <- selectList [SP.CellEnv ==. wid] []
   pure $ entityVal <$> entity
 
 getMsgs  :: CP -> SP.Key SP.World -> Int -> IO [SP.Message]
@@ -74,12 +85,12 @@ getUsers pool wid = flip runSqlPersistMPool pool $ do
   entity <- selectList [SP.UserEnv ==. wid] []
   pure $ entityVal <$> entity
 
-setGridColor :: CP -> SP.Key SP.World -> Int -> Int -> SPE.Color -> IO SPE.Color
-setGridColor pool wid x y c = do
+setCellColor :: CP -> SP.Key SP.World -> Int -> Int -> SPE.Color -> IO SPE.Color
+setCellColor pool wid x y c = do
   flip runSqlPersistMPool pool $
     updateWhere
-      [SP.GridEnv ==. wid, SP.GridX ==. x, SP.GridY ==. y]
-      [SP.GridCellColor =. c]
+      [SP.CellEnv ==. wid, SP.CellX ==. x, SP.CellY ==. y]
+      [SP.CellColor =. c]
   pure c
 
 

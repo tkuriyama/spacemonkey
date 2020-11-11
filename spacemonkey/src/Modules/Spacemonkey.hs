@@ -31,15 +31,15 @@ share
      maxX Int
      maxY Int
      deriving Show Generic
-   Grid
+   Cell
      env WorldId
      x Int
      y Int
      UniqueCell env x y
-     cellColor Color
-     cellType CellType
-     cellValue T.Text
-     cellUser UserId Maybe
+     color Color
+     value T.Text
+     cType CellType
+     cUser UserId Maybe
      deriving Show Generic
    Message
      env WorldId
@@ -51,26 +51,28 @@ share
      env WorldId
      name T.Text
      UniqueUser env name
-     loc GridId
+     loc CellId
      deriving Show Generic
   |]
 
 
 -- TH invocation for servant-elm
 deriveBoth defaultOptions ''World
-deriveBoth defaultOptions ''Grid
+deriveBoth defaultOptions ''Cell
 deriveBoth defaultOptions ''Message
 deriveBoth defaultOptions ''User
 
 
 -- Servant API definitions
 type API =
-       "getWorld" :> Capture "env" Environment :>
-       Get '[JSON] (Maybe (WorldId, World))
-  :<|> "getGrid" :> Capture "worldid" WorldId :> Get '[JSON] [Grid]
+       "getWorldId" :> Capture "env" Environment :>
+       Get '[JSON] (Maybe WorldId)
+  :<|> "getWorld" :> Capture "wid" WorldId :>
+       Get '[JSON] (Maybe World)
+  :<|> "getCell" :> Capture "worldid" WorldId :> Get '[JSON] [Cell]
   :<|> "getMsgs" :> Capture "worldid" WorldId :>
        Capture "recentN" Int :> Get '[JSON] [Message]
   :<|> "getUsers" :> Capture "worldid" WorldId :> Get '[JSON] [User]
-  :<|> "setGridColor" :> Capture "worldid" WorldId :>
+  :<|> "setCellColor" :> Capture "worldid" WorldId :>
        Capture "x" Int :> Capture "y" Int :> Capture "c" Color :>
        Put '[JSON] Color

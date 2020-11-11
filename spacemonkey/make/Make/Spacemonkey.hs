@@ -22,7 +22,7 @@ make baseURL =
     defElmImports
     "./"
     [ DefineElm (Proxy :: Proxy SP.World)
-    , DefineElm (Proxy :: Proxy SP.Grid)
+    , DefineElm (Proxy :: Proxy SP.Cell)
     , DefineElm (Proxy :: Proxy SP.Message)
     , DefineElm (Proxy :: Proxy SP.User)
     , DefineElm (Proxy :: Proxy SPE.Environment)

@@ -28,13 +28,13 @@ initialize fpath =
     devId <- insert $ SP.World SPE.Dev width height
     forM_ [1..width] $ \i -> do
       forM_ [1..height] $ \j -> do
-        _ <- insert $ SP.Grid devId i j SPE.White SPE.Std (T.pack "") Nothing
+        _ <- insert $ SP.Cell devId i j SPE.White (T.pack "") SPE.Std Nothing
         pure ()
     -- Prod
     prodId <- insert $ SP.World SPE.Prod width height
     forM_ [1..width] $ \i -> do
       forM_ [1..height] $ \j -> do
-        _ <- insert $ SP.Grid prodId i j SPE.White SPE.Std (T.pack "") Nothing
+        _ <- insert $ SP.Cell prodId i j SPE.White (T.pack "") SPE.Std Nothing
         pure ()
   where width = 100
         height = 50
