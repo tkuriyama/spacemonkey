@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6d435784fc8655cefd0bfaef9393775a258c7fb45ccb0bf72c9d63ab74884ac4
+-- hash: 081155f01f6ae9c61a0d6b5a731ba69cb7a8a55807e50a9ceec0a5602032d9f0
 
 name:           spacemonkey
 version:        0.1.0.0
@@ -32,10 +32,12 @@ library
       Modules.HelloServerAcid
       Modules.HelloServerPersist
       Modules.Spacemonkey
+      Initialize
   other-modules:
       Paths_spacemonkey
   hs-source-dirs:
       src
+      scripts
   default-extensions: DataKinds DeriveDataTypeable DeriveGeneric FlexibleContexts GeneralizedNewtypeDeriving MultiParamTypeClasses OverloadedStrings TemplateHaskell TypeFamilies TypeOperators
   build-depends:
       acid-state

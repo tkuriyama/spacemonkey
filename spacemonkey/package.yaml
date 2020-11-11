@@ -35,7 +35,9 @@ dependencies:
   - unliftio-core
 
 library:
-  source-dirs: src
+  source-dirs:
+    - src
+    - scripts
   default-extensions:
     - DataKinds
     - DeriveDataTypeable
