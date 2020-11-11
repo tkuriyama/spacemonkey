@@ -36,9 +36,9 @@ share
      x Int
      y Int
      UniqueCell env x y
-     cellColor Color default White
-     cellType CellType default Std
-     cellValue T.Text default ""
+     cellColor Color
+     cellType CellType
+     cellValue T.Text
      cellUser UserId Maybe
      deriving Show Generic
    Message
