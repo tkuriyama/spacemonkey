@@ -28,8 +28,7 @@ main = bracket
 mkApp :: FilePath -> IO Application
 mkApp sqliteFile = do
   pool <- runStderrLoggingT $ do
-    createSqlitePool (T.pack sqliteFile) 5
-  runSqlPool (runMigration SP.migrateAll) pool
+    createSqlitePool (T.pack sqliteFile) 10
   return $ app pool
 
 app :: ConnectionPool -> Application
