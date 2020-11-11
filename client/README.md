@@ -11,18 +11,20 @@ The build commands are wrapped with [redo](https://redo.readthedocs.io/en/latest
 Note that the below client modules reside in `src/Modules/`, and the one specified in `src/Main.elm` will be built.
 
 
-## HelloServer
+## HelloServer Instances
+### Hello Server
 
 `HelloServer` is Spacemonkey's Hello World. To get it to work with `localhost`, you willl ikely need some method of dealing with CORS issues (e.g. [this post](https://alfilatov.com/posts/run-chrome-without-cors/)).
 
-## HelloServerAcid
+### HelloServerAcid
 
-An iteration of `HelloServer` that is materially the same from the client's perspective (on the server side, the state is persistent to disk rather than just in memory).
+An iteration of `HelloServer` that is materially the same from the client's perspective (on the server side, the state is persisted to disk rather than just held in memory).
 
 
-## HelloServerPersist
+### HelloServerPersist
 
-An iteration of `HelloServer` that is materially the same from the client's perspective (on the server side, the state is persistent to disk rather than just in memory).
+Similar to `HelloServerAcid`, with a different persistence backend on the server side and marginally different API.
+
 
 ## Spacemonkey
 
