@@ -356,7 +356,6 @@ type alias WorldId = Int
 type alias CellId = Int
 type alias MessageId = Int
 type alias UserId = Int
-type alias Grid = List Cell
 
 jsonEncWorldId = Json.Encode.int
 jsonDecWorldId = Json.Decode.int

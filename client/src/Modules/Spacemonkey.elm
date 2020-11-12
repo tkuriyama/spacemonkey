@@ -9,19 +9,8 @@ import Html.Attributes exposing (class, value, placeholder)
 import Html.Events exposing (onClick)
 
 import CodeGen.Spacemonkey as CSP
-import Show as Show
-
-type Msg
-    = GetWorldId (Result Http.Error (Maybe CSP.WorldId))
-    | GetGrid (Result Http.Error CSP.Grid)
-
-type alias Model = { env : CSP.Env
-                   , worldId : CSP.WorldId
-                   , world : CSP.World
-                   , grid : List CSP.Cell
-                   , statusMsg : Maybe String
-                   , errorMsg : Maybe String
-                   }
+import Modules.Show as Show
+import Modules.Types exposing (..)
 
 --------------------------------------------------------------------------------
 
@@ -54,8 +43,8 @@ initModel env = CSP.getWorldIdByEnv env GetWorldId
 
 --------------------------------------------------------------------------------
 
-view : Model -> Html Msg
-view m = Show.show m
+view : Model -> Html msg
+view = Show.show
 
 --------------------------------------------------------------------------------
 
