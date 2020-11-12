@@ -2,6 +2,9 @@
 stack install
 spacemonkey-make >&2
 
+echo "\nRunning post-codegen edits to Spacemonkey Elm code...\n" >&2
+stack runghc -- scripts/PostCodeGen.hs "CodeGen/Spacemonkey.elm" >&2
+
 echo "\nDeleting old Elm files from client dir...\n" >&2
 rm -fv ../client/src/CodeGen/*.elm >&2
 
@@ -10,4 +13,3 @@ mv -v CodeGen/*.elm ../client/src/CodeGen/ >&2
 
 echo "\nDeleting Elm files from server dir...\n" >&2
 rm -rfv CodeGen/*.elm >&2
-
