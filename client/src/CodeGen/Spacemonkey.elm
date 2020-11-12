@@ -170,7 +170,7 @@ jsonEncCellType  val =
         Fixed -> Json.Encode.string "Fixed"
 
 
-getGetWorldIdByEnv : Environment -> (Result Http.Error  ((Maybe (Key World)))  -> msg) -> Cmd msg
+getGetWorldIdByEnv : Environment -> (Result Http.Error  ((Maybe (WorldId)))  -> msg) -> Cmd msg
 getGetWorldIdByEnv capture_env toMsg =
     let
         params =
@@ -192,14 +192,14 @@ getGetWorldIdByEnv capture_env toMsg =
             , body =
                 Http.emptyBody
             , expect =
-                Http.expectJson toMsg (Json.Decode.maybe ((jsonDecKey jsonDecWorld)))
+                Http.expectJson toMsg (Json.Decode.maybe jsonDecWorld)
             , timeout =
                 Nothing
             , tracker =
                 Nothing
             }
 
-getGetWorldByWid : (Key World) -> (Result Http.Error  ((Maybe World))  -> msg) -> Cmd msg
+getGetWorldByWid : (WorldId) -> (Result Http.Error  ((Maybe World))  -> msg) -> Cmd msg
 getGetWorldByWid capture_wid toMsg =
     let
         params =
@@ -228,7 +228,7 @@ getGetWorldByWid capture_wid toMsg =
                 Nothing
             }
 
-getGetCellByWorldid : (Key World) -> (Result Http.Error  ((List Cell))  -> msg) -> Cmd msg
+getGetCellByWorldid : (WorldId) -> (Result Http.Error  ((List Cell))  -> msg) -> Cmd msg
 getGetCellByWorldid capture_worldid toMsg =
     let
         params =
@@ -257,7 +257,7 @@ getGetCellByWorldid capture_worldid toMsg =
                 Nothing
             }
 
-getGetMsgsByWorldidByRecentN : (Key World) -> Int -> (Result Http.Error  ((List Message))  -> msg) -> Cmd msg
+getGetMsgsByWorldidByRecentN : (WorldId) -> Int -> (Result Http.Error  ((List Message))  -> msg) -> Cmd msg
 getGetMsgsByWorldidByRecentN capture_worldid capture_recentN toMsg =
     let
         params =
@@ -287,7 +287,7 @@ getGetMsgsByWorldidByRecentN capture_worldid capture_recentN toMsg =
                 Nothing
             }
 
-getGetUsersByWorldid : (Key World) -> (Result Http.Error  ((List User))  -> msg) -> Cmd msg
+getGetUsersByWorldid : (WorldId) -> (Result Http.Error  ((List User))  -> msg) -> Cmd msg
 getGetUsersByWorldid capture_worldid toMsg =
     let
         params =
@@ -316,7 +316,7 @@ getGetUsersByWorldid capture_worldid toMsg =
                 Nothing
             }
 
-putSetCellColorByWorldidByXByYByC : (Key World) -> Int -> Int -> Color -> (Result Http.Error  (Color)  -> msg) -> Cmd msg
+putSetCellColorByWorldidByXByYByC : (WorldId) -> Int -> Int -> Color -> (Result Http.Error  (Color)  -> msg) -> Cmd msg
 putSetCellColorByWorldidByXByYByC capture_worldid capture_x capture_y capture_c toMsg =
     let
         params =
@@ -335,7 +335,7 @@ putSetCellColorByWorldidByXByYByC capture_worldid capture_x capture_y capture_c 
                     , (capture_worldid |> String.fromInt)
                     , (capture_x |> String.fromInt)
                     , (capture_y |> String.fromInt)
-                    , (capture_c |> String.fromInt)
+                    , (capture_c |> jsonEncColor)
                     ]
                     params
             , body =
@@ -348,6 +348,8 @@ putSetCellColorByWorldidByXByYByC capture_worldid capture_x capture_y capture_c 
                 Nothing
             }
 
+-- Post Code Gen Appends (after servant-elm)
+
 -- Add aliases to resolve erasure of Key a types from persistent
 
 type alias WorldId = Int
@@ -355,11 +357,11 @@ type alias CellId = Int
 type alias MessageId = Int
 type alias UserId = Int
 
-jsonEncWorldId = Json.Encode.Int
+jsonEncWorldId = Json.Encode.int
 jsonDecWorldId = Json.Decode.int
-jsonEncCellId = Json.Encode.Int
+jsonEncCellId = Json.Encode.int
 jsonDecCellId = Json.Decode.int
-jsonEncMessageId = Json.Encode.Int
+jsonEncMessageId = Json.Encode.int
 jsonDecMessageId = Json.Decode.int
-jsonEncUserId = Json.Encode.Int
+jsonEncUserId = Json.Encode.int
 jsonDecUserId = Json.Decode.int
