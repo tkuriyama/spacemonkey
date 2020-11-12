@@ -1,6 +1,6 @@
 **/elm-stuff/*
 **.redo/*
-client/tmp/*
+**/tmp/*
 **/elm.js
 client/all
 spacemonkey/dist/*
