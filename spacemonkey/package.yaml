@@ -75,6 +75,7 @@ executables:
       - -Wredundant-constraints
     dependencies:
       - elm-bridge
+      - http-api-data
       - spacemonkey
       - servant-elm
 

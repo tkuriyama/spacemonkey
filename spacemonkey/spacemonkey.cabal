@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 081155f01f6ae9c61a0d6b5a731ba69cb7a8a55807e50a9ceec0a5602032d9f0
+-- hash: cb39b1feca5d2e309e89d5e1e27ce455048b05ec26ce25b9c62c86390798b89a
 
 name:           spacemonkey
 version:        0.1.0.0
@@ -33,6 +33,7 @@ library
       Modules.HelloServerPersist
       Modules.Spacemonkey
       Initialize
+      PostCodeGen
   other-modules:
       Paths_spacemonkey
   hs-source-dirs:
@@ -76,6 +77,7 @@ executable spacemonkey-make
     , conduit
     , containers
     , elm-bridge
+    , http-api-data
     , monad-logger
     , mtl
     , persistent
