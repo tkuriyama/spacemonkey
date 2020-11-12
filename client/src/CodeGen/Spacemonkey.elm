@@ -11,7 +11,7 @@ import String
 import Url.Builder
 
 type alias World  =
-   { worldEnv: Environment
+   { worldEnv: Env
    , worldMaxX: Int
    , worldMaxY: Int
    }
@@ -19,14 +19,14 @@ type alias World  =
 jsonDecWorld : Json.Decode.Decoder ( World )
 jsonDecWorld =
    Json.Decode.succeed (\pworldEnv pworldMaxX pworldMaxY -> {worldEnv = pworldEnv, worldMaxX = pworldMaxX, worldMaxY = pworldMaxY})
-   |> required "worldEnv" (jsonDecEnvironment)
+   |> required "worldEnv" (jsonDecEnv)
    |> required "worldMaxX" (Json.Decode.int)
    |> required "worldMaxY" (Json.Decode.int)
 
 jsonEncWorld : World -> Value
 jsonEncWorld  val =
    Json.Encode.object
-   [ ("worldEnv", jsonEncEnvironment val.worldEnv)
+   [ ("worldEnv", jsonEncEnv val.worldEnv)
    , ("worldMaxX", Json.Encode.int val.worldMaxX)
    , ("worldMaxY", Json.Encode.int val.worldMaxY)
    ]
@@ -108,17 +108,17 @@ jsonEncUser  val =
 
 
 
-type Environment  =
+type Env  =
     Dev 
     | Prod 
 
-jsonDecEnvironment : Json.Decode.Decoder ( Environment )
-jsonDecEnvironment = 
-    let jsonDecDictEnvironment = Dict.fromList [("Dev", Dev), ("Prod", Prod)]
-    in  decodeSumUnaries "Environment" jsonDecDictEnvironment
+jsonDecEnv : Json.Decode.Decoder ( Env )
+jsonDecEnv = 
+    let jsonDecDictEnv = Dict.fromList [("Dev", Dev), ("Prod", Prod)]
+    in  decodeSumUnaries "Env" jsonDecDictEnv
 
-jsonEncEnvironment : Environment -> Value
-jsonEncEnvironment  val =
+jsonEncEnv : Env -> Value
+jsonEncEnv  val =
     case val of
         Dev -> Json.Encode.string "Dev"
         Prod -> Json.Encode.string "Prod"
@@ -170,8 +170,8 @@ jsonEncCellType  val =
         Fixed -> Json.Encode.string "Fixed"
 
 
-getGetWorldIdByEnv : Environment -> (Result Http.Error  ((Maybe (WorldId)))  -> msg) -> Cmd msg
-getGetWorldIdByEnv capture_env toMsg =
+getWorldIdByEnv : Env -> (Result Http.Error  ((Maybe (WorldId)))  -> msg) -> Cmd msg
+getWorldIdByEnv capture_env toMsg =
     let
         params =
             List.filterMap identity
@@ -185,22 +185,22 @@ getGetWorldIdByEnv capture_env toMsg =
                 []
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
-                    [ "getWorldId"
-                    , (capture_env |> String.fromInt)
+                    [ "worldId"
+                    , (capture_env |> strEncEnv)
                     ]
                     params
             , body =
                 Http.emptyBody
             , expect =
-                Http.expectJson toMsg (Json.Decode.maybe jsonDecWorld)
+                Http.expectJson toMsg (Json.Decode.maybe jsonDecWorldId)
             , timeout =
                 Nothing
             , tracker =
                 Nothing
             }
 
-getGetWorldByWid : (WorldId) -> (Result Http.Error  ((Maybe World))  -> msg) -> Cmd msg
-getGetWorldByWid capture_wid toMsg =
+getWorldByWid : (WorldId) -> (Result Http.Error  ((Maybe World))  -> msg) -> Cmd msg
+getWorldByWid capture_wid toMsg =
     let
         params =
             List.filterMap identity
@@ -214,7 +214,7 @@ getGetWorldByWid capture_wid toMsg =
                 []
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
-                    [ "getWorld"
+                    [ "world"
                     , (capture_wid |> String.fromInt)
                     ]
                     params
@@ -228,8 +228,8 @@ getGetWorldByWid capture_wid toMsg =
                 Nothing
             }
 
-getGetCellByWorldid : (WorldId) -> (Result Http.Error  ((List Cell))  -> msg) -> Cmd msg
-getGetCellByWorldid capture_worldid toMsg =
+getGridByWorldid : (WorldId) -> (Result Http.Error  ((List Cell))  -> msg) -> Cmd msg
+getGridByWorldid capture_worldid toMsg =
     let
         params =
             List.filterMap identity
@@ -243,7 +243,7 @@ getGetCellByWorldid capture_worldid toMsg =
                 []
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
-                    [ "getCell"
+                    [ "grid"
                     , (capture_worldid |> String.fromInt)
                     ]
                     params
@@ -257,8 +257,8 @@ getGetCellByWorldid capture_worldid toMsg =
                 Nothing
             }
 
-getGetMsgsByWorldidByRecentN : (WorldId) -> Int -> (Result Http.Error  ((List Message))  -> msg) -> Cmd msg
-getGetMsgsByWorldidByRecentN capture_worldid capture_recentN toMsg =
+getMsgsByWorldidByRecentN : (WorldId) -> Int -> (Result Http.Error  ((List Message))  -> msg) -> Cmd msg
+getMsgsByWorldidByRecentN capture_worldid capture_recentN toMsg =
     let
         params =
             List.filterMap identity
@@ -272,7 +272,7 @@ getGetMsgsByWorldidByRecentN capture_worldid capture_recentN toMsg =
                 []
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
-                    [ "getMsgs"
+                    [ "msgs"
                     , (capture_worldid |> String.fromInt)
                     , (capture_recentN |> String.fromInt)
                     ]
@@ -287,8 +287,8 @@ getGetMsgsByWorldidByRecentN capture_worldid capture_recentN toMsg =
                 Nothing
             }
 
-getGetUsersByWorldid : (WorldId) -> (Result Http.Error  ((List User))  -> msg) -> Cmd msg
-getGetUsersByWorldid capture_worldid toMsg =
+getUsersByWorldid : (WorldId) -> (Result Http.Error  ((List User))  -> msg) -> Cmd msg
+getUsersByWorldid capture_worldid toMsg =
     let
         params =
             List.filterMap identity
@@ -302,7 +302,7 @@ getGetUsersByWorldid capture_worldid toMsg =
                 []
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
-                    [ "getUsers"
+                    [ "users"
                     , (capture_worldid |> String.fromInt)
                     ]
                     params
@@ -316,8 +316,8 @@ getGetUsersByWorldid capture_worldid toMsg =
                 Nothing
             }
 
-putSetCellColorByWorldidByXByYByC : (WorldId) -> Int -> Int -> Color -> (Result Http.Error  (Color)  -> msg) -> Cmd msg
-putSetCellColorByWorldidByXByYByC capture_worldid capture_x capture_y capture_c toMsg =
+putCellColorByWorldidByXByYByColor : (WorldId) -> Int -> Int -> Color -> (Result Http.Error  (Color)  -> msg) -> Cmd msg
+putCellColorByWorldidByXByYByColor capture_worldid capture_x capture_y capture_color toMsg =
     let
         params =
             List.filterMap identity
@@ -331,11 +331,11 @@ putSetCellColorByWorldidByXByYByC capture_worldid capture_x capture_y capture_c 
                 []
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
-                    [ "setCellColor"
+                    [ "cellColor"
                     , (capture_worldid |> String.fromInt)
                     , (capture_x |> String.fromInt)
                     , (capture_y |> String.fromInt)
-                    , (capture_c |> jsonEncColor)
+                    , (capture_color |> strEncColor)
                     ]
                     params
             , body =
@@ -350,12 +350,13 @@ putSetCellColorByWorldidByXByYByC capture_worldid capture_x capture_y capture_c 
 
 -- Post Code Gen Appends (after servant-elm)
 
--- Add aliases to resolve erasure of Key a types from persistent
+-- Add aliases to resolve erasure of (Key a) types from persistent
 
 type alias WorldId = Int
 type alias CellId = Int
 type alias MessageId = Int
 type alias UserId = Int
+type alias Grid = List Cell
 
 jsonEncWorldId = Json.Encode.int
 jsonDecWorldId = Json.Decode.int
@@ -365,3 +366,28 @@ jsonEncMessageId = Json.Encode.int
 jsonDecMessageId = Json.Decode.int
 jsonEncUserId = Json.Encode.int
 jsonDecUserId = Json.Decode.int
+
+strEncEnv : Env -> String
+strEncEnv val = 
+    case val of 
+        Dev -> "Dev"
+        Prod -> "Prod"
+
+strEncColor : Color -> String
+strEncColor val = 
+    case val of 
+        White -> "White"
+        Yellow -> "Yellow"
+        Red -> "Red"
+        Green -> "Green"
+        Blue -> "Blue"
+        Grey -> "Grey"
+
+strEncCellType : CellType -> String
+strEncCellType val = 
+    case val of 
+        Std -> "Std"
+        Link -> "Link"
+        Text -> "Text"
+        Fixed -> "Fixed"
+

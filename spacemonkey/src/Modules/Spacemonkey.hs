@@ -66,14 +66,14 @@ deriveBoth defaultOptions ''User
 -- fully spelled-out in lower case (dependency in PostCodeGen.hs)
 
 type API =
-       "getWorldId" :> Capture "env" Env :>
+       "worldId" :> Capture "env" Env :>
        Get '[JSON] (Maybe WorldId)
-  :<|> "getWorld" :> Capture "wid" WorldId :>
+  :<|> "world" :> Capture "wid" WorldId :>
        Get '[JSON] (Maybe World)
-  :<|> "getCell" :> Capture "worldid" WorldId :> Get '[JSON] [Cell]
-  :<|> "getMsgs" :> Capture "worldid" WorldId :>
+  :<|> "grid" :> Capture "worldid" WorldId :> Get '[JSON] [Cell]
+  :<|> "msgs" :> Capture "worldid" WorldId :>
        Capture "recentN" Int :> Get '[JSON] [Message]
-  :<|> "getUsers" :> Capture "worldid" WorldId :> Get '[JSON] [User]
-  :<|> "setCellColor" :> Capture "worldid" WorldId :>
+  :<|> "users" :> Capture "worldid" WorldId :> Get '[JSON] [User]
+  :<|> "cellColor" :> Capture "worldid" WorldId :>
        Capture "x" Int :> Capture "y" Int :> Capture "color" Color :>
        Put '[JSON] Color

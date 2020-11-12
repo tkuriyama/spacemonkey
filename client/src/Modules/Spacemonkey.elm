@@ -9,50 +9,72 @@ import Html.Attributes exposing (class, value, placeholder)
 import Html.Events exposing (onClick)
 
 import CodeGen.Spacemonkey as CSP
+import Show as Show
 
-type Msg = GetWorldId (Result Http.Error (Maybe (CSP.Key CSP.World)))
+type Msg
+    = GetWorldId (Result Http.Error (Maybe CSP.WorldId))
+    | GetGrid (Result Http.Error CSP.Grid)
 
-type alias Model = { env : CSP.Environment
-                   , worldId : CSP.Key CSP.World
+type alias Model = { env : CSP.Env
+                   , worldId : CSP.WorldId
                    , world : CSP.World
-                   , grid : List CSP.CEll
+                   , grid : List CSP.Cell
                    , statusMsg : Maybe String
                    , errorMsg : Maybe String
                    }
 
 --------------------------------------------------------------------------------
 
+
+main = element
+    { init = init
+    , view = view
+    , update = update
+    , subscriptions = \_ -> Sub.none
+    }
+
+--------------------------------------------------------------------------------
+
 init : () -> (Model, Cmd Msg)
-init _ = (defaultModel, initModel)
+init _ = let m = defaultModel
+         in (m, initModel m.env)
 
 defaultModel : Model
 defaultModel = { env = CSP.Dev
                , worldId = 0
                , world = { worldEnv = CSP.Dev
-                         , worldX = 0
-                         , worldY = 0 }
+                         , worldMaxX = 0
+                         , worldMaxY = 0 }
                , grid = []
                , statusMsg = Nothing
                , errorMsg = Nothing }
 
-initModel : Cmd.Msg
-initModel = HSP.getGetWorldIdByEnv DataReceived
+initModel : CSP.Env -> Cmd Msg
+initModel env = CSP.getWorldIdByEnv env GetWorldId
+
+--------------------------------------------------------------------------------
 
 view : Model -> Html Msg
-view m =
-    div []
-        []
+view m = Show.show m
+
+--------------------------------------------------------------------------------
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
---        SendHttpRequest ->
---            (model, getModel)
         GetWorldId (Ok mWid) -> case mWid of
-            (Just wid) -> ({ model | worldId = wid }, Cmd.none)
+            (Just wid) -> ({ model | worldId = wid }, getGrid wid)
             Nothing -> (model, Cmd.none)
         GetWorldId (Err httpError) ->
             ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
+        GetGrid (Ok grid) ->
+            ({ model | grid = grid }, Cmd.none)
+        GetGrid (Err httpError) ->
+            ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
+
+
+getGrid : CSP.WorldId -> Cmd Msg
+getGrid wid = CSP.getGridByWorldid wid GetGrid
 
 buildErrorMsg : Http.Error -> String
 buildErrorMsg httpError =
@@ -67,10 +89,3 @@ buildErrorMsg httpError =
             "Request failed with status code: " ++ String.fromInt statusCode
         Http.BadBody message ->
             message
-
-main = element
-    { init = init
-    , view = view
-    , update = update
-    , subscriptions = \_ -> Sub.none
-    }
