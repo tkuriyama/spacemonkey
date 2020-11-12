@@ -29,7 +29,7 @@ make baseURL =
     , DefineElm (Proxy :: Proxy SP.Cell)
     , DefineElm (Proxy :: Proxy SP.Message)
     , DefineElm (Proxy :: Proxy SP.User)
-    , DefineElm (Proxy :: Proxy SPE.Environment)
+    , DefineElm (Proxy :: Proxy SPE.Env)
     , DefineElm (Proxy :: Proxy SPE.Color)
     , DefineElm (Proxy :: Proxy SPE.CellType)
     ]

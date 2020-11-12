@@ -26,7 +26,7 @@ share
   [mkPersist sqlSettings , mkMigrate "migrateAll"]
   [persistLowerCase|
    World
-     env Environment
+     env Env
      UniqueEnv env
      maxX Int
      maxY Int
@@ -62,8 +62,11 @@ deriveBoth defaultOptions ''Message
 deriveBoth defaultOptions ''User
 
 -- Servant API definitions
+-- For use with Capture, sum types from SpacemonkeyEnum should be
+-- fully spelled-out in lower case (dependency in PostCodeGen.hs)
+
 type API =
-       "getWorldId" :> Capture "env" Environment :>
+       "getWorldId" :> Capture "env" Env :>
        Get '[JSON] (Maybe WorldId)
   :<|> "getWorld" :> Capture "wid" WorldId :>
        Get '[JSON] (Maybe World)
@@ -72,5 +75,5 @@ type API =
        Capture "recentN" Int :> Get '[JSON] [Message]
   :<|> "getUsers" :> Capture "worldid" WorldId :> Get '[JSON] [User]
   :<|> "setCellColor" :> Capture "worldid" WorldId :>
-       Capture "x" Int :> Capture "y" Int :> Capture "c" Color :>
+       Capture "x" Int :> Capture "y" Int :> Capture "color" Color :>
        Put '[JSON] Color

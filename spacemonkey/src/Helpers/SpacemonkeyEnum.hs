@@ -15,16 +15,16 @@ import           Web.HttpApiData
 
 import           Database.Persist.TH
 
-data Environment
+data Env
   = Dev
   | Prod
   deriving (Show, Read, Eq, Generic, Enum, Bounded)
 
-instance FromHttpApiData Environment where
-  parseUrlPiece :: T.Text -> Either T.Text Environment
+instance FromHttpApiData Env where
+  parseUrlPiece :: T.Text -> Either T.Text Env
   parseUrlPiece = myParse
 
-instance ToHttpApiData Environment where
+instance ToHttpApiData Env where
   toUrlPiece = T.pack . show
   toQueryParam = T.pack . show
 
@@ -67,11 +67,11 @@ myParse s = maybe (Left "cannot find enum value") Right $ M.lookup s m
 
 
 -- TH invocations for persistent
-derivePersistField "Environment"
+derivePersistField "Env"
 derivePersistField "Color"
 derivePersistField "CellType"
 
 -- TH invocation for servant-elm
-deriveBoth defaultOptions ''Environment
+deriveBoth defaultOptions ''Env
 deriveBoth defaultOptions ''Color
 deriveBoth defaultOptions ''CellType

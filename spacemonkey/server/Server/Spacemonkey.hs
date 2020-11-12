@@ -57,7 +57,7 @@ server pool =
     getUsers' = liftIO . getUsers pool
     setCellColor' wid x y c = liftIO $ setCellColor pool wid x y c
 
-getWorldId :: CP -> SPE.Environment -> IO (Maybe (SP.Key SP.World))
+getWorldId :: CP -> SPE.Env -> IO (Maybe (SP.Key SP.World))
 getWorldId pool env = flip runSqlPersistMPool pool $ do
   ret <- getBy $ SP.UniqueEnv env
   case ret of
