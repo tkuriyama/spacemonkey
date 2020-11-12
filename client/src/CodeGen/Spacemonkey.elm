@@ -33,80 +33,77 @@ jsonEncWorld  val =
 
 
 
-type alias Grid  =
-   { gridEnv: (Key World)
-   , gridX: Int
-   , gridY: Int
-   , gridCellColor: Color
-   , gridCellType: CellType
-   , gridCellValue: String
-   , gridCellUser: (Maybe (Key User))
+type alias Cell  =
+   { cellEnv: WorldId
+   , cellX: Int
+   , cellY: Int
+   , cellColor: Color
+   , cellValue: String
+   , cellCType: CellType
    }
 
-jsonDecGrid : Json.Decode.Decoder ( Grid )
-jsonDecGrid =
-   Json.Decode.succeed (\pgridEnv pgridX pgridY pgridCellColor pgridCellType pgridCellValue pgridCellUser -> {gridEnv = pgridEnv, gridX = pgridX, gridY = pgridY, gridCellColor = pgridCellColor, gridCellType = pgridCellType, gridCellValue = pgridCellValue, gridCellUser = pgridCellUser})
-   |> required "gridEnv" (jsonDecKey (jsonDecWorld))
-   |> required "gridX" (Json.Decode.int)
-   |> required "gridY" (Json.Decode.int)
-   |> required "gridCellColor" (jsonDecColor)
-   |> required "gridCellType" (jsonDecCellType)
-   |> required "gridCellValue" (Json.Decode.string)
-   |> fnullable "gridCellUser" (jsonDecKey (jsonDecUser))
+jsonDecCell : Json.Decode.Decoder ( Cell )
+jsonDecCell =
+   Json.Decode.succeed (\pcellEnv pcellX pcellY pcellColor pcellValue pcellCType -> {cellEnv = pcellEnv, cellX = pcellX, cellY = pcellY, cellColor = pcellColor, cellValue = pcellValue, cellCType = pcellCType})
+   |> required "cellEnv" (jsonDecWorldId)
+   |> required "cellX" (Json.Decode.int)
+   |> required "cellY" (Json.Decode.int)
+   |> required "cellColor" (jsonDecColor)
+   |> required "cellValue" (Json.Decode.string)
+   |> required "cellCType" (jsonDecCellType)
 
-jsonEncGrid : Grid -> Value
-jsonEncGrid  val =
+jsonEncCell : Cell -> Value
+jsonEncCell  val =
    Json.Encode.object
-   [ ("gridEnv", (jsonEncKey (jsonEncWorld)) val.gridEnv)
-   , ("gridX", Json.Encode.int val.gridX)
-   , ("gridY", Json.Encode.int val.gridY)
-   , ("gridCellColor", jsonEncColor val.gridCellColor)
-   , ("gridCellType", jsonEncCellType val.gridCellType)
-   , ("gridCellValue", Json.Encode.string val.gridCellValue)
-   , ("gridCellUser", (maybeEncode ((jsonEncKey (jsonEncUser)))) val.gridCellUser)
+   [ ("cellEnv", jsonEncWorldId val.cellEnv)
+   , ("cellX", Json.Encode.int val.cellX)
+   , ("cellY", Json.Encode.int val.cellY)
+   , ("cellColor", jsonEncColor val.cellColor)
+   , ("cellValue", Json.Encode.string val.cellValue)
+   , ("cellCType", jsonEncCellType val.cellCType)
    ]
 
 
 
 type alias Message  =
-   { messageEnv: (Key World)
+   { messageEnv: WorldId
    , messageValue: String
    }
 
 jsonDecMessage : Json.Decode.Decoder ( Message )
 jsonDecMessage =
    Json.Decode.succeed (\pmessageEnv pmessageValue -> {messageEnv = pmessageEnv, messageValue = pmessageValue})
-   |> required "messageEnv" (jsonDecKey (jsonDecWorld))
+   |> required "messageEnv" (jsonDecWorldId)
    |> required "messageValue" (Json.Decode.string)
 
 jsonEncMessage : Message -> Value
 jsonEncMessage  val =
    Json.Encode.object
-   [ ("messageEnv", (jsonEncKey (jsonEncWorld)) val.messageEnv)
+   [ ("messageEnv", jsonEncWorldId val.messageEnv)
    , ("messageValue", Json.Encode.string val.messageValue)
    ]
 
 
 
 type alias User  =
-   { userEnv: (Key World)
+   { userEnv: WorldId
    , userName: String
-   , userLoc: (Key Grid)
+   , userLoc: CellId
    }
 
 jsonDecUser : Json.Decode.Decoder ( User )
 jsonDecUser =
    Json.Decode.succeed (\puserEnv puserName puserLoc -> {userEnv = puserEnv, userName = puserName, userLoc = puserLoc})
-   |> required "userEnv" (jsonDecKey (jsonDecWorld))
+   |> required "userEnv" (jsonDecWorldId)
    |> required "userName" (Json.Decode.string)
-   |> required "userLoc" (jsonDecKey (jsonDecGrid))
+   |> required "userLoc" (jsonDecCellId)
 
 jsonEncUser : User -> Value
 jsonEncUser  val =
    Json.Encode.object
-   [ ("userEnv", (jsonEncKey (jsonEncWorld)) val.userEnv)
+   [ ("userEnv", jsonEncWorldId val.userEnv)
    , ("userName", Json.Encode.string val.userName)
-   , ("userLoc", (jsonEncKey (jsonEncGrid)) val.userLoc)
+   , ("userLoc", jsonEncCellId val.userLoc)
    ]
 
 
@@ -173,8 +170,37 @@ jsonEncCellType  val =
         Fixed -> Json.Encode.string "Fixed"
 
 
-getGetWorldByEnv : String -> (Result Http.Error  ((Maybe World))  -> msg) -> Cmd msg
-getGetWorldByEnv capture_env toMsg =
+getGetWorldIdByEnv : Environment -> (Result Http.Error  ((Maybe (Key World)))  -> msg) -> Cmd msg
+getGetWorldIdByEnv capture_env toMsg =
+    let
+        params =
+            List.filterMap identity
+            (List.concat
+                [])
+    in
+        Http.request
+            { method =
+                "GET"
+            , headers =
+                []
+            , url =
+                Url.Builder.crossOrigin "http://localhost:8080"
+                    [ "getWorldId"
+                    , (capture_env |> String.fromInt)
+                    ]
+                    params
+            , body =
+                Http.emptyBody
+            , expect =
+                Http.expectJson toMsg (Json.Decode.maybe ((jsonDecKey jsonDecWorld)))
+            , timeout =
+                Nothing
+            , tracker =
+                Nothing
+            }
+
+getGetWorldByWid : (Key World) -> (Result Http.Error  ((Maybe World))  -> msg) -> Cmd msg
+getGetWorldByWid capture_wid toMsg =
     let
         params =
             List.filterMap identity
@@ -189,7 +215,7 @@ getGetWorldByEnv capture_env toMsg =
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
                     [ "getWorld"
-                    , (capture_env)
+                    , (capture_wid |> String.fromInt)
                     ]
                     params
             , body =
@@ -202,8 +228,8 @@ getGetWorldByEnv capture_env toMsg =
                 Nothing
             }
 
-getGetGridByWorldid : (Key World) -> (Result Http.Error  ((List Grid))  -> msg) -> Cmd msg
-getGetGridByWorldid capture_worldid toMsg =
+getGetCellByWorldid : (Key World) -> (Result Http.Error  ((List Cell))  -> msg) -> Cmd msg
+getGetCellByWorldid capture_worldid toMsg =
     let
         params =
             List.filterMap identity
@@ -217,14 +243,14 @@ getGetGridByWorldid capture_worldid toMsg =
                 []
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
-                    [ "getGrid"
+                    [ "getCell"
                     , (capture_worldid |> String.fromInt)
                     ]
                     params
             , body =
                 Http.emptyBody
             , expect =
-                Http.expectJson toMsg (Json.Decode.list (jsonDecGrid))
+                Http.expectJson toMsg (Json.Decode.list (jsonDecCell))
             , timeout =
                 Nothing
             , tracker =
@@ -290,8 +316,8 @@ getGetUsersByWorldid capture_worldid toMsg =
                 Nothing
             }
 
-putSetGridColorByWorldidByXByYByC : (Key World) -> Int -> Int -> Color -> (Result Http.Error  (Color)  -> msg) -> Cmd msg
-putSetGridColorByWorldidByXByYByC capture_worldid capture_x capture_y capture_c toMsg =
+putSetCellColorByWorldidByXByYByC : (Key World) -> Int -> Int -> Color -> (Result Http.Error  (Color)  -> msg) -> Cmd msg
+putSetCellColorByWorldidByXByYByC capture_worldid capture_x capture_y capture_c toMsg =
     let
         params =
             List.filterMap identity
@@ -305,7 +331,7 @@ putSetGridColorByWorldidByXByYByC capture_worldid capture_x capture_y capture_c 
                 []
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
-                    [ "setGridColor"
+                    [ "setCellColor"
                     , (capture_worldid |> String.fromInt)
                     , (capture_x |> String.fromInt)
                     , (capture_y |> String.fromInt)
@@ -321,3 +347,19 @@ putSetGridColorByWorldidByXByYByC capture_worldid capture_x capture_y capture_c 
             , tracker =
                 Nothing
             }
+
+-- Add aliases to resolve erasure of Key a types from persistent
+
+type alias WorldId = Int
+type alias CellId = Int
+type alias MessageId = Int
+type alias UserId = Int
+
+jsonEncWorldId = Json.Encode.Int
+jsonDecWorldId = Json.Decode.int
+jsonEncCellId = Json.Encode.Int
+jsonDecCellId = Json.Decode.int
+jsonEncMessageId = Json.Encode.Int
+jsonDecMessageId = Json.Decode.int
+jsonEncUserId = Json.Encode.Int
+jsonDecUserId = Json.Decode.int
