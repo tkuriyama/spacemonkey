@@ -24,6 +24,11 @@ instance FromHttpApiData Environment where
   parseUrlPiece :: T.Text -> Either T.Text Environment
   parseUrlPiece = myParse
 
+instance ToHttpApiData Environment where
+  toUrlPiece = T.pack . show
+  toQueryParam = T.pack . show
+
+
 data Color
   = White
   | Yellow
@@ -37,6 +42,10 @@ instance FromHttpApiData Color where
   parseUrlPiece :: T.Text -> Either T.Text Color
   parseUrlPiece = myParse
 
+instance ToHttpApiData Color where
+  toUrlPiece = T.pack . show
+  toQueryParam = T.pack . show
+
 data CellType
     = Std
     | Link
@@ -48,13 +57,16 @@ instance FromHttpApiData CellType where
   parseUrlPiece :: T.Text -> Either T.Text CellType
   parseUrlPiece = myParse
 
+instance ToHttpApiData CellType where
+  toUrlPiece = T.pack . show
+  toQueryParam = T.pack . show
 
 myParse :: (Show a, Enum a, Bounded a) => T.Text -> Either T.Text a
 myParse s = maybe (Left "cannot find enum value") Right $ M.lookup s m
   where m = M.fromList $ map (\v -> (T.pack $ show v, v)) [minBound..maxBound]
 
 
--- TH invocations for persisten
+-- TH invocations for persistent
 derivePersistField "Environment"
 derivePersistField "Color"
 derivePersistField "CellType"

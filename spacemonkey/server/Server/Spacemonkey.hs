@@ -64,7 +64,7 @@ getWorldId pool env = flip runSqlPersistMPool pool $ do
     Nothing -> pure Nothing
     (Just (Entity wid _)) -> pure $ Just wid
 
-getWorld :: CP -> SP.Key SP.World -> IO (Maybe SP.World)
+getWorld :: CP -> SP.WorldId -> IO (Maybe SP.World)
 getWorld pool wid = flip runSqlPersistMPool pool $ do
   ret <- get wid
   pure ret

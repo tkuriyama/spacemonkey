@@ -39,7 +39,6 @@ share
      color Color
      value T.Text
      cType CellType
-     cUser UserId Maybe
      deriving Show Generic
    Message
      env WorldId
@@ -61,7 +60,6 @@ deriveBoth defaultOptions ''World
 deriveBoth defaultOptions ''Cell
 deriveBoth defaultOptions ''Message
 deriveBoth defaultOptions ''User
-
 
 -- Servant API definitions
 type API =
