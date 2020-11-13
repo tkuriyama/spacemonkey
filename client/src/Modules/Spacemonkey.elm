@@ -8,12 +8,19 @@ import Html exposing (Html, div, text, button, input, br)
 import Html.Attributes exposing (class, value, placeholder)
 import Html.Events exposing (onClick)
 
+import TypedSvg exposing (circle, svg, rect, line, text_)
+import TypedSvg.Attributes exposing (x, y, x1, y1, x2, y2, cx, cy, r, rx,
+                                     fill, fillOpacity, opacity,
+                                     stroke, strokeWidth, class,
+                                     width, height, viewBox)
+import TypedSvg.Types exposing (Paint(..), px, Opacity(..))
+import TypedSvg.Core exposing (Svg, text)
+
 import CodeGen.Spacemonkey as CSP
 import Modules.Show as Show
 import Modules.Types exposing (..)
 
 --------------------------------------------------------------------------------
-
 
 main = element
     { init = init
@@ -24,19 +31,22 @@ main = element
 
 --------------------------------------------------------------------------------
 
-init : () -> (Model, Cmd Msg)
-init _ = let m = defaultModel
-         in (m, initModel m.env)
+init : Flags -> (Model, Cmd Msg)
+init flags = let m = defaultModel flags
+             in (m, initModel m.env)
 
-defaultModel : Model
-defaultModel = { env = CSP.Dev
-               , worldId = 0
-               , world = { worldEnv = CSP.Dev
-                         , worldMaxX = 0
-                         , worldMaxY = 0 }
-               , grid = []
-               , statusMsg = Nothing
-               , errorMsg = Nothing }
+defaultModel : Flags -> Model
+defaultModel flags =
+    { windowWidth = flags.windowWidth
+    , windowHeight = flags.windowHeight
+    , env = CSP.Dev
+    , worldId = 0
+    , world = { worldEnv = CSP.Dev
+              , worldMaxX = 0
+              , worldMaxY = 0 }
+    , grid = []
+    , statusMsg = Nothing
+    , errorMsg = Nothing }
 
 initModel : CSP.Env -> Cmd Msg
 initModel env = CSP.getWorldIdByEnv env GetWorldId
@@ -52,15 +62,27 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         GetWorldId (Ok mWid) -> case mWid of
-            (Just wid) -> ({ model | worldId = wid }, getGrid wid)
-            Nothing -> (model, Cmd.none)
+            (Just wid) ->
+                ({ model | worldId = wid }, getWorld wid)
+            Nothing ->
+                ({model | errorMsg = Just "World Id not found"}, Cmd.none)
         GetWorldId (Err httpError) ->
+            ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
+        GetWorld (Ok mWorld) -> case mWorld of
+            (Just world) ->
+                ({ model | world = world }, getGrid model.worldId)
+            Nothing ->
+                ({ model | errorMsg = Just "World ID not found"}, Cmd.none)
+        GetWorld (Err httpError) ->
             ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
         GetGrid (Ok grid) ->
             ({ model | grid = grid }, Cmd.none)
         GetGrid (Err httpError) ->
             ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
 
+
+getWorld : CSP.WorldId -> Cmd Msg
+getWorld wid = CSP.getWorldByWid wid GetWorld
 
 getGrid : CSP.WorldId -> Cmd Msg
 getGrid wid = CSP.getGridByWorldid wid GetGrid

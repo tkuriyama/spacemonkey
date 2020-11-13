@@ -4,12 +4,20 @@ import Http exposing (Error)
 
 import CodeGen.Spacemonkey as CSP
 
+type alias Flags =
+    { windowWidth : Int
+    , windowHeight : Int
+    }
+
 type Msg
     = GetWorldId (Result Http.Error (Maybe CSP.WorldId))
+    | GetWorld (Result Http.Error (Maybe CSP.World))
     | GetGrid (Result Http.Error Grid)
 
 type alias Model
-    = { env : CSP.Env
+    = { windowWidth: Int
+      , windowHeight: Int
+      , env : CSP.Env
       , worldId : CSP.WorldId
       , world : CSP.World
       , grid : Grid
