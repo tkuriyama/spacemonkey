@@ -1,5 +1,7 @@
 module Modules.Types exposing (..)
 
+import Array2D as A
+
 import Http exposing (Error)
 
 import CodeGen.Spacemonkey as CSP
@@ -12,7 +14,7 @@ type alias Flags =
 type Msg
     = GetWorldId (Result Http.Error (Maybe CSP.WorldId))
     | GetWorld (Result Http.Error (Maybe CSP.World))
-    | GetGrid (Result Http.Error Grid)
+    | GetGrid (Result Http.Error (List CSP.Cell))
 
 type alias Model
     = { windowWidth: Int
@@ -25,4 +27,8 @@ type alias Model
       , errorMsg : Maybe String
       }
 
-type alias Grid = List CSP.Cell
+type alias Grid = A.Array2D CSP.Cell
+
+
+genGrid : List CSP.Cell -> Grid
+genGrid xs = A.empty

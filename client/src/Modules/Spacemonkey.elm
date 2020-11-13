@@ -1,5 +1,6 @@
 module Modules.Spacemonkey exposing (main)
 
+import Array2D as A
 import String exposing (fromInt)
 
 import Http
@@ -7,14 +8,6 @@ import Browser exposing (element)
 import Html exposing (Html, div, text, button, input, br)
 import Html.Attributes exposing (class, value, placeholder)
 import Html.Events exposing (onClick)
-
-import TypedSvg exposing (circle, svg, rect, line, text_)
-import TypedSvg.Attributes exposing (x, y, x1, y1, x2, y2, cx, cy, r, rx,
-                                     fill, fillOpacity, opacity,
-                                     stroke, strokeWidth, class,
-                                     width, height, viewBox)
-import TypedSvg.Types exposing (Paint(..), px, Opacity(..))
-import TypedSvg.Core exposing (Svg, text)
 
 import CodeGen.Spacemonkey as CSP
 import Modules.Show as Show
@@ -44,7 +37,7 @@ defaultModel flags =
     , world = { worldEnv = CSP.Dev
               , worldMaxX = 0
               , worldMaxY = 0 }
-    , grid = []
+    , grid = A.empty
     , statusMsg = Nothing
     , errorMsg = Nothing }
 
@@ -76,7 +69,7 @@ update msg model =
         GetWorld (Err httpError) ->
             ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
         GetGrid (Ok grid) ->
-            ({ model | grid = grid }, Cmd.none)
+            ({ model | grid = genGrid grid }, Cmd.none)
         GetGrid (Err httpError) ->
             ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
 
