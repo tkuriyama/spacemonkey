@@ -1,13 +1,13 @@
 module Modules.Spacemonkey exposing (main)
 
-import Array2D as A
 import String exposing (fromInt)
 
-import Http
 import Browser exposing (element)
+import Browser.Events as E
 import Html exposing (Html, div, text, button, input, br)
 import Html.Attributes exposing (class, value, placeholder)
 import Html.Events exposing (onClick)
+import Http
 
 import CodeGen.Spacemonkey as CSP
 import Modules.Show as Show
@@ -19,7 +19,7 @@ main = element
     { init = init
     , view = view
     , update = update
-    , subscriptions = \_ -> Sub.none
+    , subscriptions = subscriptions
     }
 
 --------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ defaultModel flags =
     , world = { worldEnv = CSP.Dev
               , worldMaxX = 0
               , worldMaxY = 0 }
-    , grid = A.empty
+    , grid = []
     , statusMsg = Nothing
     , errorMsg = Nothing }
 
@@ -69,9 +69,11 @@ update msg model =
         GetWorld (Err httpError) ->
             ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
         GetGrid (Ok grid) ->
-            ({ model | grid = genGrid grid }, Cmd.none)
+            ({ model | grid = grid }, Cmd.none)
         GetGrid (Err httpError) ->
             ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
+        WindowResize (w, h) ->
+            ({ model | windowWidth = w, windowHeight = h}, Cmd.none)
 
 
 getWorld : CSP.WorldId -> Cmd Msg
@@ -93,3 +95,9 @@ buildErrorMsg httpError =
             "Request failed with status code: " ++ String.fromInt statusCode
         Http.BadBody message ->
             message
+
+--------------------------------------------------------------------------------
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+  E.onResize (\w h -> WindowResize (w, h))
