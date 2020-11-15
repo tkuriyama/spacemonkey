@@ -37,6 +37,7 @@ defaultModel flags =
               , worldMaxX = 0
               , worldMaxY = 0 }
     , grid = []
+    , users = []
     , viewOpts =
         Camera.initCam { windowWidth = flags.windowWidth
                        , windowHeight = flags.windowHeight
@@ -73,8 +74,12 @@ update msg model =
         GetWorld (Err httpError) ->
             ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
         GetGrid (Ok grid) ->
-            ( { model | grid = grid }, Cmd.none)
+            ( { model | grid = grid }, getUsers model.worldId)
         GetGrid (Err httpError) ->
+            ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
+        GetUsers (Ok users) ->
+            ( { model | users = users }, Cmd.none)
+        GetUsers (Err httpError) ->
             ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
         WindowResize (w, h) ->
             let vo = Camera.reinitCam w h model.viewOpts
@@ -85,6 +90,9 @@ getWorld wid = CSP.getWorldByWid wid GetWorld
 
 getGrid : CSP.WorldId -> Cmd Msg
 getGrid wid = CSP.getGridByWorldid wid GetGrid
+
+getUsers : CSP.WorldId -> Cmd Msg
+getUsers wid = CSP.getUsersByWorldid wid GetUsers
 
 buildErrorMsg : Http.Error -> String
 buildErrorMsg httpError =

@@ -1,12 +1,13 @@
 module Modules.Show exposing (..)
 
 import Color
-import Html exposing (Html, div, text, button, input, br)
+import Html exposing (Html, div)
 import Html.Attributes exposing (class, value, placeholder)
 import TypedSvg exposing (circle, svg, rect, line, text_)
 import TypedSvg.Attributes exposing (x, y, x1, y1, x2, y2, cx, cy, r, rx,
                                      fill, fillOpacity, opacity,
                                      stroke, strokeWidth, class,
+                                     fontSize,
                                      width, height, viewBox)
 import TypedSvg.Core exposing (Svg, text)
 import TypedSvg.Types exposing (Paint(..), px, Opacity(..))
@@ -27,7 +28,8 @@ show m =
        []
        [ svg
          [ viewBox 0 0 (toFloat w) (toFloat h)]
-         (showGrid cellSize cs)
+         (showGrid cellSize cs ++
+          showUsers cellSize m.users)
        ]
 
 --------------------------------------------------------------------------------
@@ -59,3 +61,19 @@ mapColor color =
         Green -> Color.green
         Blue -> Color.blue
         Grey -> Color.darkGrey
+
+--------------------------------------------------------------------------------
+
+showUsers : Int -> List CSP.User -> List (Svg msg)
+showUsers cellSize = List.map (showUser cellSize)
+
+showUser: Int -> CSP.User -> Svg msg
+showUser cellSize u =
+    let cellSize_ = toFloat cellSize
+        project x = toFloat x * cellSize_
+    in text_
+        [ x <| px <| project u.userX + cellSize_ * 0.05
+        , y <| px <| project u.userY - cellSize_ * 0.10
+        , fontSize <| px <| cellSize_ * 0.9
+        ]
+        [ text u.userName ]

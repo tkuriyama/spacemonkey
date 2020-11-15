@@ -16,6 +16,7 @@ type Msg
     = GetWorldId (Result Http.Error (Maybe CSP.WorldId))
     | GetWorld (Result Http.Error (Maybe CSP.World))
     | GetGrid (Result Http.Error (List CSP.Cell))
+    | GetUsers (Result Http.Error (List CSP.User))
     | WindowResize (Int, Int)
 
 type alias Model
@@ -23,6 +24,7 @@ type alias Model
       , worldId : CSP.WorldId
       , world : CSP.World
       , grid : Grid
+      , users : List CSP.User
       , viewOpts : ViewOpts
       , errorMsg : Maybe String
       }

@@ -67,19 +67,22 @@ jsonEncCell  val =
 
 type alias Message  =
    { messageEnv: WorldId
+   , messageSenderId: UserId
    , messageValue: String
    }
 
 jsonDecMessage : Json.Decode.Decoder ( Message )
 jsonDecMessage =
-   Json.Decode.succeed (\pmessageEnv pmessageValue -> {messageEnv = pmessageEnv, messageValue = pmessageValue})
+   Json.Decode.succeed (\pmessageEnv pmessageSenderId pmessageValue -> {messageEnv = pmessageEnv, messageSenderId = pmessageSenderId, messageValue = pmessageValue})
    |> required "messageEnv" (jsonDecWorldId)
+   |> required "messageSenderId" (jsonDecUserId)
    |> required "messageValue" (Json.Decode.string)
 
 jsonEncMessage : Message -> Value
 jsonEncMessage  val =
    Json.Encode.object
    [ ("messageEnv", jsonEncWorldId val.messageEnv)
+   , ("messageSenderId", jsonEncUserId val.messageSenderId)
    , ("messageValue", Json.Encode.string val.messageValue)
    ]
 
@@ -88,22 +91,25 @@ jsonEncMessage  val =
 type alias User  =
    { userEnv: WorldId
    , userName: String
-   , userLoc: CellId
+   , userX: Int
+   , userY: Int
    }
 
 jsonDecUser : Json.Decode.Decoder ( User )
 jsonDecUser =
-   Json.Decode.succeed (\puserEnv puserName puserLoc -> {userEnv = puserEnv, userName = puserName, userLoc = puserLoc})
+   Json.Decode.succeed (\puserEnv puserName puserX puserY -> {userEnv = puserEnv, userName = puserName, userX = puserX, userY = puserY})
    |> required "userEnv" (jsonDecWorldId)
    |> required "userName" (Json.Decode.string)
-   |> required "userLoc" (jsonDecCellId)
+   |> required "userX" (Json.Decode.int)
+   |> required "userY" (Json.Decode.int)
 
 jsonEncUser : User -> Value
 jsonEncUser  val =
    Json.Encode.object
    [ ("userEnv", jsonEncWorldId val.userEnv)
    , ("userName", Json.Encode.string val.userName)
-   , ("userLoc", jsonEncCellId val.userLoc)
+   , ("userX", Json.Encode.int val.userX)
+   , ("userY", Json.Encode.int val.userY)
    ]
 
 
