@@ -10,6 +10,7 @@ import Html.Events exposing (onClick)
 import Http
 
 import CodeGen.Spacemonkey as CSP
+import Modules.Camera as Camera
 import Modules.Show as Show
 import Modules.Types exposing (..)
 
@@ -30,15 +31,18 @@ init flags = let m = defaultModel flags
 
 defaultModel : Flags -> Model
 defaultModel flags =
-    { windowWidth = flags.windowWidth
-    , windowHeight = flags.windowHeight
-    , env = CSP.Dev
+    { env = CSP.Dev
     , worldId = 0
     , world = { worldEnv = CSP.Dev
               , worldMaxX = 0
               , worldMaxY = 0 }
     , grid = []
-    , statusMsg = Nothing
+    , viewOpts =
+        Camera.initCam { windowWidth = flags.windowWidth
+                       , windowHeight = flags.windowHeight
+                       , camera = ((0, 0), (0, 0))
+                       , cellSize = 40
+                       }
     , errorMsg = Nothing }
 
 initModel : CSP.Env -> Cmd Msg
@@ -69,12 +73,12 @@ update msg model =
         GetWorld (Err httpError) ->
             ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
         GetGrid (Ok grid) ->
-            ({ model | grid = grid }, Cmd.none)
+            ( { model | grid = grid }, Cmd.none)
         GetGrid (Err httpError) ->
             ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
         WindowResize (w, h) ->
-            ({ model | windowWidth = w, windowHeight = h}, Cmd.none)
-
+            let vo = Camera.reinitCam w h model.viewOpts
+            in ({ model | viewOpts = vo }, Cmd.none)
 
 getWorld : CSP.WorldId -> Cmd Msg
 getWorld wid = CSP.getWorldByWid wid GetWorld
