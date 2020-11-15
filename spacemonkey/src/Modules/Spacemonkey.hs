@@ -1,3 +1,4 @@
+
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE EmptyDataDecls #-}
@@ -43,14 +44,15 @@ share
    Message
      env WorldId
      -- timestamp Int
-     -- sender UserId
+     senderId UserId
      value T.Text
      deriving Show Generic
    User
      env WorldId
      name T.Text
      UniqueUser env name
-     loc CellId
+     x Int
+     y Int
      deriving Show Generic
   |]
 
