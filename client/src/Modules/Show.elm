@@ -65,15 +65,33 @@ mapColor color =
 --------------------------------------------------------------------------------
 
 showUsers : Int -> List CSP.User -> List (Svg msg)
-showUsers cellSize = List.map (showUser cellSize)
+showUsers cellSize = List.concatMap (showUser cellSize)
 
-showUser: Int -> CSP.User -> Svg msg
+showUser: Int -> CSP.User -> List (Svg msg)
 showUser cellSize u =
-    let cellSize_ = toFloat cellSize
-        project x = toFloat x * cellSize_
-    in text_
-        [ x <| px <| project u.userX + cellSize_ * 0.05
-        , y <| px <| project u.userY - cellSize_ * 0.10
-        , fontSize <| px <| cellSize_ * 0.9
-        ]
-        [ text u.userName ]
+    let dirSize = 3
+        cellSize_ = toFloat cellSize
+        project n = toFloat n * cellSize_
+        (userX, userY) = (project u.userX, project u.userY)
+        ((dirX1, dirX2), (dirW, dirH)) =
+            case u.userFacing of
+                East -> ((userX + cellSize_ - dirSize, userY)
+                        , (dirSize, cellSize_))
+                West -> ((userX, userY), (dirSize, cellSize_))
+                North -> ((userX, userY), (cellSize_, dirSize))
+                South -> ((userX, userY + cellSize_ - dirSize)
+                         , (cellSize_, dirSize))
+    in [ text_
+             [ x <| px <| userX + cellSize_ * 0.05
+             , y <| px <| userY + cellSize_ - cellSize_ * 0.1 -- text draws up
+             , fontSize <| px <| cellSize_ * 0.85
+             ]
+             [ text u.userName ]
+       , rect
+             [ x <| px dirX1
+             , y <| px dirX2
+             , width <| px dirW
+             , height <| px dirH
+             , fill <| Paint Color.lightOrange ]
+             []
+       ]

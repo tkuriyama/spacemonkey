@@ -93,15 +93,17 @@ type alias User  =
    , userName: String
    , userX: Int
    , userY: Int
+   , userFacing: Direction
    }
 
 jsonDecUser : Json.Decode.Decoder ( User )
 jsonDecUser =
-   Json.Decode.succeed (\puserEnv puserName puserX puserY -> {userEnv = puserEnv, userName = puserName, userX = puserX, userY = puserY})
+   Json.Decode.succeed (\puserEnv puserName puserX puserY puserFacing -> {userEnv = puserEnv, userName = puserName, userX = puserX, userY = puserY, userFacing = puserFacing})
    |> required "userEnv" (jsonDecWorldId)
    |> required "userName" (Json.Decode.string)
    |> required "userX" (Json.Decode.int)
    |> required "userY" (Json.Decode.int)
+   |> required "userFacing" (jsonDecDirection)
 
 jsonEncUser : User -> Value
 jsonEncUser  val =
@@ -110,6 +112,7 @@ jsonEncUser  val =
    , ("userName", Json.Encode.string val.userName)
    , ("userX", Json.Encode.int val.userX)
    , ("userY", Json.Encode.int val.userY)
+   , ("userFacing", jsonEncDirection val.userFacing)
    ]
 
 
@@ -174,6 +177,27 @@ jsonEncCellType  val =
         Link -> Json.Encode.string "Link"
         Text -> Json.Encode.string "Text"
         Fixed -> Json.Encode.string "Fixed"
+
+
+
+type Direction  =
+    North 
+    | South 
+    | East 
+    | West 
+
+jsonDecDirection : Json.Decode.Decoder ( Direction )
+jsonDecDirection = 
+    let jsonDecDictDirection = Dict.fromList [("North", North), ("South", South), ("East", East), ("West", West)]
+    in  decodeSumUnaries "Direction" jsonDecDictDirection
+
+jsonEncDirection : Direction -> Value
+jsonEncDirection  val =
+    case val of
+        North -> Json.Encode.string "North"
+        South -> Json.Encode.string "South"
+        East -> Json.Encode.string "East"
+        West -> Json.Encode.string "West"
 
 
 getWorldIdByEnv : Env -> (Result Http.Error  ((Maybe (WorldId)))  -> msg) -> Cmd msg
@@ -395,4 +419,12 @@ strEncCellType val =
         Link -> "Link"
         Text -> "Text"
         Fixed -> "Fixed"
+
+strEncDirection : Direction -> String
+strEncDirection val = 
+    case val of 
+        North -> "North"
+        South -> "South"
+        East -> "East"
+        West -> "West"
 

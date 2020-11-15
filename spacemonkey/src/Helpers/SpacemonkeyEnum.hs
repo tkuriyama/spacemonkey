@@ -61,6 +61,21 @@ instance ToHttpApiData CellType where
   toUrlPiece = T.pack . show
   toQueryParam = T.pack . show
 
+data Direction
+    = North
+    | South
+    | East
+    | West
+    deriving (Show, Read, Eq, Generic, Enum, Bounded)
+
+instance FromHttpApiData Direction where
+  parseUrlPiece :: T.Text -> Either T.Text Direction
+  parseUrlPiece = myParse
+
+instance ToHttpApiData Direction where
+  toUrlPiece = T.pack . show
+  toQueryParam = T.pack . show
+
 myParse :: (Show a, Enum a, Bounded a) => T.Text -> Either T.Text a
 myParse s = maybe (Left "cannot find enum value") Right $ M.lookup s m
   where m = M.fromList $ map (\v -> (T.pack $ show v, v)) [minBound..maxBound]
@@ -70,8 +85,10 @@ myParse s = maybe (Left "cannot find enum value") Right $ M.lookup s m
 derivePersistField "Env"
 derivePersistField "Color"
 derivePersistField "CellType"
+derivePersistField "Direction"
 
 -- TH invocation for servant-elm
 deriveBoth defaultOptions ''Env
 deriveBoth defaultOptions ''Color
 deriveBoth defaultOptions ''CellType
+deriveBoth defaultOptions ''Direction

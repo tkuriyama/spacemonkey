@@ -32,6 +32,7 @@ make baseURL =
     , DefineElm (Proxy :: Proxy SPE.Env)
     , DefineElm (Proxy :: Proxy SPE.Color)
     , DefineElm (Proxy :: Proxy SPE.CellType)
+    , DefineElm (Proxy :: Proxy SPE.Direction)
     ]
     (Proxy :: Proxy SP.API)
 

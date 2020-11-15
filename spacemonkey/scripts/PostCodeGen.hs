@@ -24,7 +24,7 @@ appendMain :: FilePath -> IO ()
 appendMain fpath = do
   ft <- TIO.readFile fpath
   let names = ["World", "Cell", "Message", "User"]
-      enums = ["Env", "Color", "CellType"]
+      enums = ["Env", "Color", "CellType", "Direction"]
       ft' = replace' names enums $ append' names ft
   TIO.writeFile fpath ft'
 
@@ -38,7 +38,8 @@ append' names t =
   jsonHandlers <> br <>
   sumToString (Proxy :: Proxy SPE.Env) "Env" <> br <>
   sumToString (Proxy :: Proxy SPE.Color) "Color" <> br <>
-  sumToString (Proxy :: Proxy SPE.CellType) "CellType" <> br
+  sumToString (Proxy :: Proxy SPE.CellType) "CellType" <> br <>
+  sumToString (Proxy :: Proxy SPE.Direction) "Direction" <> br
   where
     br = "\n"
     comment =
@@ -83,3 +84,4 @@ replace' names enums t = foldr f t replacements
       [( "capture_" <> T.toLower x <> " |> String.fromInt"
        , "capture_" <> T.toLower x <> " |> strEnc" <> x )
        | x <- enums]
+

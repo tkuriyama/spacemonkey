@@ -48,8 +48,8 @@ initialize fpath =
           pure ()
 
       -- users and messages
-      userId1 <- insert $ SP.User envId "🦉" 1 5
-      userId2 <- insert $ SP.User envId "🦛" 1 6
+      userId1 <- insert $ SP.User envId "🦉" 1 5 SPE.East
+      userId2 <- insert $ SP.User envId "🦛" 1 6 SPE.East
       _ <- insert $ SP.Message envId userId1 "Hello, Spacemonkey!"
       _ <- insert $ SP.Message envId userId2 "Hello, Spacemonkey!"
       pure ()

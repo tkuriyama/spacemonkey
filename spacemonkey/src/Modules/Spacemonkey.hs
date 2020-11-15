@@ -53,6 +53,7 @@ share
      UniqueUser env name
      x Int
      y Int
+     facing Direction
      deriving Show Generic
   |]
 

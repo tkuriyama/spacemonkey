@@ -19,13 +19,13 @@ reinitCam w h vo =
     let vo_ = {vo | windowWidth = w, windowHeight = h}
     in initCam vo_
 
-moveCam : Move -> ViewOpts -> ViewOpts
+moveCam : CSP.Direction -> ViewOpts -> ViewOpts
 moveCam mv vo = let ((x1, y1), (x2, y2)) = vo.camera
                     (dx, dy) = case mv of
-                                   Up -> (0, -1)
-                                   Down -> (0, 1)
-                                   Left -> (-1, 0)
-                                   Right -> (1, 0)
+                                   CSP.North -> (0, -1)
+                                   CSP.South -> (0, 1)
+                                   CSP.East -> (-1, 0)
+                                   CSP.West -> (1, 0)
                 in { vo | camera = ((x1+dx, y1+dy), (x2+dx, y2+dy)) }
 
 getVisible : ViewOpts -> Grid -> Grid

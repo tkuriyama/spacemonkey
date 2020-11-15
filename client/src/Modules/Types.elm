@@ -40,12 +40,6 @@ type alias ViewOpts
       , camera : (Point, Point)
       }
 
-type Move
-    = Up
-    | Down
-    | Left
-    | Right
-
 --------------------------------------------------------------------------------
 -- Type conversion helpers
 
