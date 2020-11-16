@@ -17,11 +17,12 @@ type Msg
     | GetWorld (Result Http.Error (Maybe CSP.World))
     | GetGrid (Result Http.Error (List CSP.Cell))
     | GetUsers (Result Http.Error (List CSP.User))
-    | WindowResize (Int, Int)
-    | DirectionKeyPress CSP.Direction
     | Move (Result Http.Error (CSP.Direction))
     | Reface (Result Http.Error (CSP.Direction))
+    | DirectionKeyPress CSP.Direction
     | NoAction
+    | ToggleColor
+    | WindowResize (Int, Int)
 
 type alias Model
     = { env : CSP.Env
@@ -29,8 +30,8 @@ type alias Model
       , world : CSP.World
       , grid : Grid
       , userId : CSP.UserId
-      , userName : String
-      , users : List CSP.User
+      , self : CSP.User
+      , others : List CSP.User
       , viewOpts : ViewOpts
       , errorMsg : Maybe String
       }
@@ -47,24 +48,27 @@ type alias ViewOpts
       }
 
 --------------------------------------------------------------------------------
--- Type conversion helpers
 
--- listToGrid : Int -> List CSP.Cell -> Grid
--- listToGrid n cs = cs
---                 |> List.sortBy (\c -> c.cellY)
---                 |> genGroups n []
---                 |> List.map (List.sortBy (\c -> c.cellX))
---                 |> List.map (Z.fromList)
---                 |> MaybeE.combine
---                 |> MaybeE.unwrap Empty (\zs -> case Z.fromList zs of
---                                                    Nothing -> Empty
---                                                    Just z -> Grid z)
-
--- genGroups : Int -> List (List a) -> List a -> List (List a)
--- genGroups n acc xs =
---     case xs of
---         [] -> List.reverse acc
---         xs_ -> let row = List.take n xs
---                    rest = List.drop n xs_
---                in genGroups n (row :: acc) rest
-
+getDefaultModel : Model
+getDefaultModel =
+    { env = CSP.Dev -- TODO initialize with login
+    , worldId = 0
+    , world = { worldEnv = CSP.Dev
+              , worldMaxX = 0
+              , worldMaxY = 0 }
+    , grid = []
+    , userId = 1 -- TODO intialize with login
+    , self = { userEnv = 0
+             , userName = ""
+             , userX = 0
+             , userY = 0
+             , userFacing = CSP.East
+             }
+    , others = []
+    , viewOpts = { windowWidth = 0
+                 , windowHeight = 0
+                 , camera = ((0, 0), (0, 0))
+                 , cellSize = 40
+                 }
+    , errorMsg = Nothing
+    }

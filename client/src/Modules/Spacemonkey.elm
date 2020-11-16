@@ -16,6 +16,7 @@ import CodeGen.Spacemonkey as CSP
 import Modules.Camera as Camera
 import Modules.Show as Show
 import Modules.Types exposing (..)
+import Modules.Utils as Utils
 
 --------------------------------------------------------------------------------
 
@@ -29,30 +30,13 @@ main = element
 --------------------------------------------------------------------------------
 
 init : Flags -> (Model, Cmd Msg)
-init flags = let m = defaultModel flags
-             in (m, initModel m.env)
+init flags = let m = initModel flags
+             in (m, initWorld m.env)
 
-defaultModel : Flags -> Model
-defaultModel flags =
-    { env = CSP.Dev
-    , worldId = 0
-    , world = { worldEnv = CSP.Dev
-              , worldMaxX = 0
-              , worldMaxY = 0 }
-    , grid = []
-    , userId = 1
-    , userName = "🦉"  -- TODO: don't hard code this
-    , users = []
-    , viewOpts =
-        Camera.initCam { windowWidth = flags.windowWidth
-                       , windowHeight = flags.windowHeight
-                       , camera = ((0, 0), (0, 0))
-                       , cellSize = 40
-                       }
-    , errorMsg = Nothing }
-
-initModel : CSP.Env -> Cmd Msg
-initModel env = CSP.getWorldIdByEnv env GetWorldId
+initModel : Flags -> Model
+initModel flags =
+    let m = getDefaultModel
+    in { m | viewOpts = Camera.initCam m.viewOpts }
 
 --------------------------------------------------------------------------------
 
@@ -83,27 +67,29 @@ update msg model =
         GetGrid (Err httpError) ->
             ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
         GetUsers (Ok users) ->
-            ( { model | users = users }, Cmd.none)
+            ( { model | others = users }, Cmd.none)
         GetUsers (Err httpError) ->
             ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
         WindowResize (w, h) ->
             let vo = Camera.reinitCam w h model.viewOpts
             in ({ model | viewOpts = vo }, Cmd.none)
         DirectionKeyPress dir ->
-            let cmd = moveOrReface model.users model.userId model.userName dir
-            in (model, cmd)
+            (model, moveOrReface model.grid model.userId model.self dir)
+        ToggleColor ->
+            (model, Cmd.none)
         Move (Ok dir) ->
-            let users = applyMove model.users model.userName dir
-            in ({model | users = users}, Cmd.none)
+            ({model | self = applyMove model.self dir}, Cmd.none)
         Move (Err httpError) ->
             ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
         Reface (Ok dir) ->
-            let users = applyReface model.users model.userName dir
-            in ({model | users = users}, Cmd.none)
+            ({model | self = applyReface model.self dir}, Cmd.none)
         Reface (Err httpError) ->
             ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
         NoAction ->
             (model, Cmd.none)
+
+initWorld : CSP.Env -> Cmd Msg
+initWorld env = CSP.getWorldIdByEnv env GetWorldId
 
 getWorld : CSP.WorldId -> Cmd Msg
 getWorld wid = CSP.getWorldByWid wid GetWorld
@@ -114,14 +100,14 @@ getGrid wid = CSP.getGridByWorldid wid GetGrid
 getUsers : CSP.WorldId -> Cmd Msg
 getUsers wid = CSP.getUsersByWorldid wid GetUsers
 
-moveOrReface : List CSP.User -> CSP.UserId -> String -> CSP.Direction ->
-               Cmd Msg
-moveOrReface users uid name dir =
-    case ListE.find (\u -> u.userName == name) users of
-        Nothing -> Cmd.none
-        Just u_ -> case u_.userFacing == dir of
-                            True -> putMove uid dir    --TODO check for validity
-                            False -> putReface uid dir
+moveOrReface : Grid -> CSP.UserId -> CSP.User -> CSP.Direction -> Cmd Msg
+moveOrReface grid uid user dir =
+    case user.userFacing == dir of
+        True -> if validMove grid user dir then putMove uid dir else Cmd.none
+        False -> putReface uid dir
+
+validMove : Grid -> CSP.User -> CSP.Direction -> Bool
+validMove grid user dir = True
 
 putMove : CSP.UserId -> CSP.Direction -> Cmd Msg
 putMove uid dir = CSP.putMoveByUserIdByDirection uid dir Move
@@ -129,23 +115,14 @@ putMove uid dir = CSP.putMoveByUserIdByDirection uid dir Move
 putReface : CSP.UserId -> CSP.Direction -> Cmd Msg
 putReface uid dir = CSP.putRefaceByUserIdByDirection uid dir Reface
 
-applyMove : List CSP.User -> String -> CSP.Direction -> List CSP.User
-applyMove users name dir =
+applyMove : CSP.User -> CSP.Direction -> CSP.User
+applyMove user dir =
     -- TODO check for camera move
-    let (dx, dy) = case dir of
-                       CSP.North -> (0, -1)
-                       CSP.South -> (0, 1)
-                       CSP.East -> (1, 0)
-                       CSP.West -> (-1, 0)
-        f u = { u | userX = u.userX + dx, userY = u.userY + dy }
-    in ListE.updateIf (\u ->  u.userName == name) f users
+    let (dx, dy) = Utils.moveDeltas dir
+    in { user | userX = user.userX + dx, userY = user.userY + dy }
 
-applyReface : List CSP.User -> String -> CSP.Direction -> List CSP.User
-applyReface users name dir =
-    ListE.updateIf
-        (\u -> u.userName == name)
-        (\u -> { u | userFacing = dir })
-        users
+applyReface : CSP.User -> CSP.Direction -> CSP.User
+applyReface user dir = { user | userFacing = dir }
 
 buildErrorMsg : Http.Error -> String
 buildErrorMsg httpError =
@@ -181,4 +158,5 @@ toKey keyValue =
         "s" -> DirectionKeyPress CSP.South
         "d" -> DirectionKeyPress CSP.East
         "a" -> DirectionKeyPress CSP.West
+        "c" -> ToggleColor
         _ -> NoAction
