@@ -378,6 +378,66 @@ putCellColorByWorldidByXByYByColor capture_worldid capture_x capture_y capture_c
                 Nothing
             }
 
+putMoveByUserIdByDirection : (UserId) -> Direction -> (Result Http.Error  (Direction)  -> msg) -> Cmd msg
+putMoveByUserIdByDirection capture_userId capture_direction toMsg =
+    let
+        params =
+            List.filterMap identity
+            (List.concat
+                [])
+    in
+        Http.request
+            { method =
+                "PUT"
+            , headers =
+                []
+            , url =
+                Url.Builder.crossOrigin "http://localhost:8080"
+                    [ "move"
+                    , (capture_userId |> String.fromInt)
+                    , (capture_direction |> strEncDirection)
+                    ]
+                    params
+            , body =
+                Http.emptyBody
+            , expect =
+                Http.expectJson toMsg jsonDecDirection
+            , timeout =
+                Nothing
+            , tracker =
+                Nothing
+            }
+
+putRefaceByUserIdByDirection : (UserId) -> Direction -> (Result Http.Error  (Direction)  -> msg) -> Cmd msg
+putRefaceByUserIdByDirection capture_userId capture_direction toMsg =
+    let
+        params =
+            List.filterMap identity
+            (List.concat
+                [])
+    in
+        Http.request
+            { method =
+                "PUT"
+            , headers =
+                []
+            , url =
+                Url.Builder.crossOrigin "http://localhost:8080"
+                    [ "reface"
+                    , (capture_userId |> String.fromInt)
+                    , (capture_direction |> strEncDirection)
+                    ]
+                    params
+            , body =
+                Http.emptyBody
+            , expect =
+                Http.expectJson toMsg jsonDecDirection
+            , timeout =
+                Nothing
+            , tracker =
+                Nothing
+            }
+
 -- Post Code Gen Appends (after servant-elm)
 
 -- Add aliases to resolve erasure of (Key a) types from persistent

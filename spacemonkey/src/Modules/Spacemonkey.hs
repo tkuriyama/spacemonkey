@@ -80,3 +80,7 @@ type API =
   :<|> "cellColor" :> Capture "worldid" WorldId :>
        Capture "x" Int :> Capture "y" Int :> Capture "color" Color :>
        Put '[JSON] Color
+  :<|> "move" :> Capture "userId" UserId :>
+       Capture "direction" Direction:> Put '[JSON] Direction
+  :<|> "reface" :> Capture "userId" UserId :>
+       Capture "direction" Direction:> Put '[JSON] Direction

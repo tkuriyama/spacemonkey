@@ -24,8 +24,8 @@ moveCam mv vo = let ((x1, y1), (x2, y2)) = vo.camera
                     (dx, dy) = case mv of
                                    CSP.North -> (0, -1)
                                    CSP.South -> (0, 1)
-                                   CSP.East -> (-1, 0)
-                                   CSP.West -> (1, 0)
+                                   CSP.East -> (1, 0)
+                                   CSP.West -> (-1, 0)
                 in { vo | camera = ((x1+dx, y1+dy), (x2+dx, y2+dy)) }
 
 getVisible : ViewOpts -> Grid -> Grid

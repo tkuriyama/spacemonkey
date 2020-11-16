@@ -18,12 +18,18 @@ type Msg
     | GetGrid (Result Http.Error (List CSP.Cell))
     | GetUsers (Result Http.Error (List CSP.User))
     | WindowResize (Int, Int)
+    | DirectionKeyPress CSP.Direction
+    | Move (Result Http.Error (CSP.Direction))
+    | Reface (Result Http.Error (CSP.Direction))
+    | NoAction
 
 type alias Model
     = { env : CSP.Env
       , worldId : CSP.WorldId
       , world : CSP.World
       , grid : Grid
+      , userId : CSP.UserId
+      , userName : String
       , users : List CSP.User
       , viewOpts : ViewOpts
       , errorMsg : Maybe String
