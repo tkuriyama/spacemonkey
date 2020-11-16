@@ -15,7 +15,7 @@ type alias Flags =
 type Msg
     = WindowResize (Int, Int)
     | DirectionKeyPress CSP.Direction
-    | ToggleColorKeyPress
+    | CycleColorKeyPress
     | NoAction
     | GetWorldId (Result Http.Error (Maybe CSP.WorldId))
     | GetWorld (Result Http.Error (Maybe CSP.World))
@@ -24,6 +24,7 @@ type Msg
     | GetUsers (Result Http.Error (List CSP.User))
     | Move (Result Http.Error (CSP.Direction))
     | Reface (Result Http.Error (CSP.Direction))
+    | Recolor (Result Http.Error (CSP.Color))
 
 type alias Model
     = { env : CSP.Env
@@ -50,8 +51,8 @@ type alias ViewOpts
 
 --------------------------------------------------------------------------------
 
-getDefaultModel : Model
-getDefaultModel =
+defaultModel : Model
+defaultModel =
     { env = CSP.Dev -- TODO initialize with login
     , worldId = 0
     , world = { worldEnv = CSP.Dev
@@ -72,4 +73,14 @@ getDefaultModel =
                  , cellSize = 40
                  }
     , errorMsg = Nothing
+    }
+
+defaultCell : CSP.Cell
+defaultCell =
+    { cellEnv = 1
+    , cellX = 0
+    , cellY = 0
+    , cellColor = CSP.White
+    , cellValue = ""
+    , cellCType = CSP.Std
     }

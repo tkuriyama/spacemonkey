@@ -34,7 +34,7 @@ init flags = let m = initModel flags
 
 initModel : Flags -> Model
 initModel flags =
-    let m = getDefaultModel
+    let m = defaultModel
         vo = m.viewOpts
         vo_ = { vo | windowWidth = flags.windowWidth,
                      windowHeight = flags.windowHeight
@@ -56,8 +56,8 @@ update msg model =
             in ({ model | viewOpts = vo }, Cmd.none)
         DirectionKeyPress dir ->
             (model, moveOrReface model.grid model.userId model.self dir)
-        ToggleColorKeyPress ->
-            (model, Cmd.none)
+        CycleColorKeyPress ->
+            (model, cycleColor model.worldId model.grid model.self)
         NoAction ->
             (model, Cmd.none)
         -- HTTP Rest Updates
@@ -101,6 +101,11 @@ update msg model =
             ({model | self = applyReface model.self dir}, Cmd.none)
         Reface(Err e) ->
             Utils.httpError model e
+        Recolor (Ok color) ->
+            let grid = applyColor model.grid model.self color
+            in ({model | grid = grid}, Cmd.none)
+        Recolor (Err e) ->
+            Utils.httpError model e
 
 initWorld : CSP.Env -> Cmd Msg
 initWorld env = CSP.getWorldIdByEnv env GetWorldId
@@ -125,9 +130,8 @@ moveOrReface grid uid user dir =
 
 validMove : Grid -> CSP.User -> CSP.Direction -> Bool
 validMove grid user dir =
-    case Utils.getFacing grid (user.userX, user.userY) dir of
-        Nothing -> False
-        (Just c) -> c.cellCType == CSP.Std && c.cellColor == CSP.White
+    let c = Utils.getFacing grid (user.userX, user.userY) dir
+    in c.cellCType == CSP.Std && c.cellColor == CSP.White
 
 putMove : CSP.UserId -> CSP.Direction -> Cmd Msg
 putMove uid dir = CSP.putMoveByUserIdByDirection uid dir Move
@@ -148,6 +152,21 @@ applyMove user dir vo =
 applyReface : CSP.User -> CSP.Direction -> CSP.User
 applyReface user dir = { user | userFacing = dir }
 
+cycleColor : CSP.WorldId -> Grid -> CSP.User -> Cmd Msg
+cycleColor wid grid user =
+    let c = Utils.getFacing grid (user.userX, user.userY) user.userFacing
+    in case c.cellCType of
+           CSP.Std -> let f = CSP.putCellColorByWorldidByXByYByColor
+                          color = CSP.cycleColor c.cellColor
+                      in f wid c.cellX c.cellY color Recolor
+           _ -> Cmd.none
+
+applyColor : Grid -> CSP.User -> CSP.Color -> Grid
+applyColor grid user color =
+    let c = Utils.getFacing grid (user.userX, user.userY) user.userFacing
+        c_ = {c | cellColor = color}
+    in ListE.setIf (Utils.eqCoord c_) c_ grid
+
 --------------------------------------------------------------------------------
 
 subscriptions : Model -> Sub Msg
@@ -163,10 +182,10 @@ keyDecoder =
 
 toKey : String -> Msg
 toKey keyValue =
-    case keyValue of
+     case keyValue of
         "w" -> DirectionKeyPress CSP.North
         "s" -> DirectionKeyPress CSP.South
         "d" -> DirectionKeyPress CSP.East
         "a" -> DirectionKeyPress CSP.West
-        "c" -> ToggleColorKeyPress
+        "c" -> CycleColorKeyPress
         _ -> NoAction

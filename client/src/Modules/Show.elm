@@ -96,6 +96,8 @@ showUser cellSize u =
              , y <| px dirX2
              , width <| px dirW
              , height <| px dirH
-             , fill <| Paint Color.lightOrange ]
+             , stroke <| Paint Color.black
+             , strokeWidth <| px 1
+             , fill <| Paint Color.white ]
              []
        ]

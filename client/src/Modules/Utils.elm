@@ -15,12 +15,15 @@ getDeltas dir = case dir of
                      CSP.East -> (1, 0)
                      CSP.West -> (-1, 0)
 
-getFacing : Grid -> Point -> CSP.Direction -> Maybe CSP.Cell
+getFacing : Grid -> Point -> CSP.Direction -> CSP.Cell
 getFacing grid (x, y) dir =
     let (dx, dy) = getDeltas dir
         (x_, y_) = (x + dx, y + dy)
-        f c acc = if (c.cellX, c.cellY) == (x_, y_) then Just c else acc
-    in List.foldr f Nothing grid
+        f c acc = if (c.cellX, c.cellY) == (x_, y_) then c else acc
+    in List.foldr f defaultCell grid
+
+eqCoord : CSP.Cell -> CSP.Cell -> Bool
+eqCoord c1 c2 = c1.cellX == c2.cellX && c1.cellY == c2.cellY
 
 --------------------------------------------------------------------------------
 
