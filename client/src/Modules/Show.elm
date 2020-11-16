@@ -28,8 +28,10 @@ show m =
        []
        [ svg
          [ viewBox 0 0 (toFloat w) (toFloat h)]
-         (showGrid cellSize cs ++
-          showUsers cellSize m.others)
+         ( showGrid cellSize cs ++
+           showUser cellSize m.self ++
+           showUsers cellSize m.others
+         )
        ]
 
 --------------------------------------------------------------------------------

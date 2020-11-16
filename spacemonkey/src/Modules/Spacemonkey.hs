@@ -76,6 +76,8 @@ type API =
   :<|> "grid" :> Capture "worldid" WorldId :> Get '[JSON] [Cell]
   :<|> "msgs" :> Capture "worldid" WorldId :>
        Capture "recentN" Int :> Get '[JSON] [Message]
+  :<|> "user" :> Capture "userid" UserId :>
+       Get '[JSON] (Maybe User)
   :<|> "users" :> Capture "worldid" WorldId :> Get '[JSON] [User]
   :<|> "cellColor" :> Capture "worldid" WorldId :>
        Capture "x" Int :> Capture "y" Int :> Capture "color" Color :>

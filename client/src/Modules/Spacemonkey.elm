@@ -9,7 +9,6 @@ import Browser exposing (element)
 import Browser.Events as E
 import Html exposing (Html, div, text, button, input, br)
 import Html.Attributes exposing (class, value, placeholder)
-import Http
 import Json.Decode as Decode
 
 import CodeGen.Spacemonkey as CSP
@@ -36,7 +35,11 @@ init flags = let m = initModel flags
 initModel : Flags -> Model
 initModel flags =
     let m = getDefaultModel
-    in { m | viewOpts = Camera.initCam m.viewOpts }
+        vo = m.viewOpts
+        vo_ = { vo | windowWidth = flags.windowWidth,
+                     windowHeight = flags.windowHeight
+              }
+    in { m | viewOpts = Camera.initCam vo_ }
 
 --------------------------------------------------------------------------------
 
@@ -45,31 +48,9 @@ view = Show.show
 
 --------------------------------------------------------------------------------
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
-        GetWorldId (Ok mWid) -> case mWid of
-            (Just wid) ->
-                ({ model | worldId = wid }, getWorld wid)
-            Nothing ->
-                ({model | errorMsg = Just "World Id not found"}, Cmd.none)
-        GetWorldId (Err httpError) ->
-            ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
-        GetWorld (Ok mWorld) -> case mWorld of
-            (Just world) ->
-                ({ model | world = world }, getGrid model.worldId)
-            Nothing ->
-                ({ model | errorMsg = Just "World ID not found"}, Cmd.none)
-        GetWorld (Err httpError) ->
-            ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
-        GetGrid (Ok grid) ->
-            ( { model | grid = grid }, getUsers model.worldId)
-        GetGrid (Err httpError) ->
-            ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
-        GetUsers (Ok users) ->
-            ( { model | others = users }, Cmd.none)
-        GetUsers (Err httpError) ->
-            ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
         WindowResize (w, h) ->
             let vo = Camera.reinitCam w h model.viewOpts
             in ({ model | viewOpts = vo }, Cmd.none)
@@ -77,22 +58,57 @@ update msg model =
             (model, moveOrReface model.grid model.userId model.self dir)
         ToggleColor ->
             (model, Cmd.none)
-        Move (Ok dir) ->
-            ({model | self = applyMove model.self dir}, Cmd.none)
-        Move (Err httpError) ->
-            ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
-        Reface (Ok dir) ->
-            ({model | self = applyReface model.self dir}, Cmd.none)
-        Reface (Err httpError) ->
-            ({ model | errorMsg = Just (buildErrorMsg httpError) }, Cmd.none)
         NoAction ->
             (model, Cmd.none)
+        -- HTTP Rest Updates
+        GetWorldId (Ok mWid) -> case mWid of
+            (Just wid) ->
+                ({ model | worldId = wid }, getWorld wid)
+            Nothing ->
+                ({model | errorMsg = Just "World Id not found"}, Cmd.none)
+        GetWorldId (Err e) ->
+            Utils.httpError model e
+        GetWorld (Ok mWorld) -> case mWorld of
+            (Just world) ->
+                ({ model | world = world }, getUser model.userId)
+            Nothing ->
+                ({ model | errorMsg = Just "World not found"}, Cmd.none)
+        GetWorld (Err e) ->
+            Utils.httpError model e
+        GetUser (Ok mUser) -> case mUser of
+            (Just user) ->
+                ({ model | self = user }, getGrid model.worldId)
+            Nothing ->
+                ({ model | errorMsg = Just "User not found"}, Cmd.none)
+        GetUser (Err e) ->
+            Utils.httpError model e
+        GetGrid (Ok grid) ->
+            ({ model | grid = grid }, getUsers model.worldId)
+        GetGrid (Err e) ->
+            Utils.httpError model e
+        GetUsers (Ok users) ->
+            let name = model.self.userName
+                users_ = List.filter (\u -> u.userName /= name) users
+            in ({ model | others = users_ }, Cmd.none)
+        GetUsers (Err e) ->
+            Utils.httpError model e
+        Move (Ok dir) ->
+            ({model | self = applyMove model.self dir}, Cmd.none)
+        Move (Err e) ->
+            Utils.httpError model e
+        Reface (Ok dir) ->
+            ({model | self = applyReface model.self dir}, Cmd.none)
+        Reface(Err e) ->
+            Utils.httpError model e
 
 initWorld : CSP.Env -> Cmd Msg
 initWorld env = CSP.getWorldIdByEnv env GetWorldId
 
 getWorld : CSP.WorldId -> Cmd Msg
 getWorld wid = CSP.getWorldByWid wid GetWorld
+
+getUser : CSP.UserId -> Cmd Msg
+getUser uid = CSP.getUserByUserid uid GetUser
 
 getGrid : CSP.WorldId -> Cmd Msg
 getGrid wid = CSP.getGridByWorldid wid GetGrid
@@ -123,20 +139,6 @@ applyMove user dir =
 
 applyReface : CSP.User -> CSP.Direction -> CSP.User
 applyReface user dir = { user | userFacing = dir }
-
-buildErrorMsg : Http.Error -> String
-buildErrorMsg httpError =
-    case httpError of
-        Http.BadUrl message ->
-            message
-        Http.Timeout ->
-            "Server is taking too long to respond. Please try again later."
-        Http.NetworkError ->
-            "Unable to reach server."
-        Http.BadStatus statusCode ->
-            "Request failed with status code: " ++ String.fromInt statusCode
-        Http.BadBody message ->
-            message
 
 --------------------------------------------------------------------------------
 

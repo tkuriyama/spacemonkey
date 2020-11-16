@@ -13,16 +13,17 @@ type alias Flags =
     }
 
 type Msg
-    = GetWorldId (Result Http.Error (Maybe CSP.WorldId))
+    = WindowResize (Int, Int)
+    | DirectionKeyPress CSP.Direction
+    | ToggleColor
+    | NoAction
+    | GetWorldId (Result Http.Error (Maybe CSP.WorldId))
     | GetWorld (Result Http.Error (Maybe CSP.World))
     | GetGrid (Result Http.Error (List CSP.Cell))
+    | GetUser (Result Http.Error (Maybe CSP.User))
     | GetUsers (Result Http.Error (List CSP.User))
     | Move (Result Http.Error (CSP.Direction))
     | Reface (Result Http.Error (CSP.Direction))
-    | DirectionKeyPress CSP.Direction
-    | NoAction
-    | ToggleColor
-    | WindowResize (Int, Int)
 
 type alias Model
     = { env : CSP.Env

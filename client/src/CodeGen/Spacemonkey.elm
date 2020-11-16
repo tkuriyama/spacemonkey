@@ -317,6 +317,35 @@ getMsgsByWorldidByRecentN capture_worldid capture_recentN toMsg =
                 Nothing
             }
 
+getUserByUserid : (UserId) -> (Result Http.Error  ((Maybe User))  -> msg) -> Cmd msg
+getUserByUserid capture_userid toMsg =
+    let
+        params =
+            List.filterMap identity
+            (List.concat
+                [])
+    in
+        Http.request
+            { method =
+                "GET"
+            , headers =
+                []
+            , url =
+                Url.Builder.crossOrigin "http://localhost:8080"
+                    [ "user"
+                    , (capture_userid |> String.fromInt)
+                    ]
+                    params
+            , body =
+                Http.emptyBody
+            , expect =
+                Http.expectJson toMsg (Json.Decode.maybe (jsonDecUser))
+            , timeout =
+                Nothing
+            , tracker =
+                Nothing
+            }
+
 getUsersByWorldid : (WorldId) -> (Result Http.Error  ((List User))  -> msg) -> Cmd msg
 getUsersByWorldid capture_worldid toMsg =
     let

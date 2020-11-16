@@ -47,6 +47,7 @@ server pool =
   getWorld' :<|>
   getCell' :<|>
   getMsgs' :<|>
+  getUser' :<|>
   getUsers' :<|>
   setCellColor' :<|>
   move' :<|>
@@ -56,6 +57,7 @@ server pool =
     getWorld' = liftIO . getWorld pool
     getCell' = liftIO . getCell pool
     getMsgs' wid n = liftIO $ getMsgs pool wid n
+    getUser' = liftIO . getUser pool
     getUsers' = liftIO . getUsers pool
     setCellColor' wid x y c = liftIO $ setCellColor pool wid x y c
     move' uid dir = liftIO $ move pool uid dir
@@ -83,6 +85,11 @@ getMsgs pool wid n = flip runSqlPersistMPool pool $ do
   entity <-
     selectList [SP.MessageEnv ==. wid] [Desc SP.MessageId, LimitTo n]
   pure $ entityVal <$> entity
+
+getUser :: CP -> SP.Key SP.User -> IO (Maybe SP.User)
+getUser pool uid = flip runSqlPersistMPool pool $ do
+  ret <- get uid
+  pure ret
 
 getUsers :: CP -> SP.Key SP.World -> IO [SP.User]
 getUsers pool wid = flip runSqlPersistMPool pool $ do
