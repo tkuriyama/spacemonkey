@@ -21,16 +21,18 @@ import Modules.Types exposing (..)
 
 show : Model -> Html msg
 show m =
-    let cs = Camera.getVisible m.viewOpts m.grid
+    let grid = Camera.getVisible m.viewOpts.camera m.grid
+              |> Camera.projectGrid m.viewOpts.camera
+        users = m.self :: m.others
+              |> Camera.projectUsers m.viewOpts.camera
         (w, h) = (m.viewOpts.windowWidth, m.viewOpts.windowHeight)
         cellSize = m.viewOpts.cellSize
     in div
        []
        [ svg
          [ viewBox 0 0 (toFloat w) (toFloat h)]
-         ( showGrid cellSize cs ++
-           showUser cellSize m.self ++
-           showUsers cellSize m.others
+         ( showGrid cellSize grid ++
+           showUsers cellSize users
          )
        ]
 

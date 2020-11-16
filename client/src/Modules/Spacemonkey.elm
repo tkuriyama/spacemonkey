@@ -93,7 +93,8 @@ update msg model =
         GetUsers (Err e) ->
             Utils.httpError model e
         Move (Ok dir) ->
-            ({model | self = applyMove model.self dir}, Cmd.none)
+            let (user, vo) = applyMove model.self dir model.viewOpts
+            in ({model | self = user, viewOpts = vo}, Cmd.none)
         Move (Err e) ->
             Utils.httpError model e
         Reface (Ok dir) ->
@@ -134,11 +135,15 @@ putMove uid dir = CSP.putMoveByUserIdByDirection uid dir Move
 putReface : CSP.UserId -> CSP.Direction -> Cmd Msg
 putReface uid dir = CSP.putRefaceByUserIdByDirection uid dir Reface
 
-applyMove : CSP.User -> CSP.Direction -> CSP.User
-applyMove user dir =
-    -- TODO check for camera move
+applyMove : CSP.User -> CSP.Direction -> ViewOpts -> (CSP.User, ViewOpts)
+applyMove user dir vo =
     let (dx, dy) = Utils.getDeltas dir
-    in { user | userX = user.userX + dx, userY = user.userY + dy }
+        (x, y) = (user.userX + dx, user.userY + dy)
+        ((cx1, cy1), (cx2, cy2)) = vo.camera
+        vo_ = if x <= cx1 || x >= cx2 - 1 || y <= cy1 || y >= cy2 - 1
+              then Camera.moveCam dir vo
+              else vo
+    in ({ user | userX = x, userY = y }, vo_)
 
 applyReface : CSP.User -> CSP.Direction -> CSP.User
 applyReface user dir = { user | userFacing = dir }

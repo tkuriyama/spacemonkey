@@ -25,8 +25,18 @@ moveCam dir vo = let ((x1, y1), (x2, y2)) = vo.camera
                      (dx, dy) = Utils.getDeltas dir
                 in { vo | camera = ((x1+dx, y1+dy), (x2+dx, y2+dy)) }
 
-getVisible : ViewOpts -> Grid -> Grid
-getVisible vo grid =
-    let ((x1, y1), (x2, y2)) = vo.camera
+getVisible : (Point, Point) -> Grid -> Grid
+getVisible camera grid =
+    let ((x1, y1), (x2, y2)) = camera
         visible cx cy = cx >= x1 && cx <= x2 && cy >= y1 && cy <= y2
     in List.filter (\c -> visible c.cellX c.cellY) grid
+
+projectGrid : (Point, Point) -> Grid -> Grid
+projectGrid ((x, y), _) =
+    List.map (\c -> { c | cellX = c.cellX - x,
+                          cellY = c.cellY - y })
+
+projectUsers : (Point, Point) -> List CSP.User -> List CSP.User
+projectUsers ((x, y), _) =
+    List.map (\u -> { u | userX = u.userX- x,
+                          userY = u.userY - y })
