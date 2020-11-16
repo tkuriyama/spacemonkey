@@ -56,7 +56,7 @@ update msg model =
             in ({ model | viewOpts = vo }, Cmd.none)
         DirectionKeyPress dir ->
             (model, moveOrReface model.grid model.userId model.self dir)
-        ToggleColor ->
+        ToggleColorKeyPress ->
             (model, Cmd.none)
         NoAction ->
             (model, Cmd.none)
@@ -123,7 +123,10 @@ moveOrReface grid uid user dir =
         False -> putReface uid dir
 
 validMove : Grid -> CSP.User -> CSP.Direction -> Bool
-validMove grid user dir = True
+validMove grid user dir =
+    case Utils.getFacing grid (user.userX, user.userY) dir of
+        Nothing -> False
+        (Just c) -> c.cellCType == CSP.Std && c.cellColor == CSP.White
 
 putMove : CSP.UserId -> CSP.Direction -> Cmd Msg
 putMove uid dir = CSP.putMoveByUserIdByDirection uid dir Move
@@ -134,7 +137,7 @@ putReface uid dir = CSP.putRefaceByUserIdByDirection uid dir Reface
 applyMove : CSP.User -> CSP.Direction -> CSP.User
 applyMove user dir =
     -- TODO check for camera move
-    let (dx, dy) = Utils.moveDeltas dir
+    let (dx, dy) = Utils.getDeltas dir
     in { user | userX = user.userX + dx, userY = user.userY + dy }
 
 applyReface : CSP.User -> CSP.Direction -> CSP.User
@@ -160,5 +163,5 @@ toKey keyValue =
         "s" -> DirectionKeyPress CSP.South
         "d" -> DirectionKeyPress CSP.East
         "a" -> DirectionKeyPress CSP.West
-        "c" -> ToggleColor
+        "c" -> ToggleColorKeyPress
         _ -> NoAction

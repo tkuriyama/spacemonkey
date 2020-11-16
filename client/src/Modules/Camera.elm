@@ -22,7 +22,7 @@ reinitCam w h vo =
 
 moveCam : CSP.Direction -> ViewOpts -> ViewOpts
 moveCam dir vo = let ((x1, y1), (x2, y2)) = vo.camera
-                     (dx, dy) = Utils.moveDeltas dir
+                     (dx, dy) = Utils.getDeltas dir
                 in { vo | camera = ((x1+dx, y1+dy), (x2+dx, y2+dy)) }
 
 getVisible : ViewOpts -> Grid -> Grid

@@ -8,12 +8,19 @@ import Modules.Types exposing (..)
 
 --------------------------------------------------------------------------------
 
-moveDeltas : CSP.Direction -> (Int, Int)
-moveDeltas dir = case dir of
+getDeltas : CSP.Direction -> (Int, Int)
+getDeltas dir = case dir of
                      CSP.North -> (0, -1)
                      CSP.South -> (0, 1)
                      CSP.East -> (1, 0)
                      CSP.West -> (-1, 0)
+
+getFacing : Grid -> Point -> CSP.Direction -> Maybe CSP.Cell
+getFacing grid (x, y) dir =
+    let (dx, dy) = getDeltas dir
+        (x_, y_) = (x + dx, y + dy)
+        f c acc = if (c.cellX, c.cellY) == (x_, y_) then Just c else acc
+    in List.foldr f Nothing grid
 
 --------------------------------------------------------------------------------
 

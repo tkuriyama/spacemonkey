@@ -517,3 +517,21 @@ strEncDirection val =
         East -> "East"
         West -> "West"
 
+cycleColor : Color -> Color
+cycleColor val = 
+    case val of 
+        White -> Yellow
+        Yellow -> Red
+        Red -> Green
+        Green -> Blue
+        Blue -> Grey
+        Grey -> White
+
+cycleCellType : CellType -> CellType
+cycleCellType val = 
+    case val of 
+        Std -> Link
+        Link -> Text
+        Text -> Fixed
+        Fixed -> Std
+

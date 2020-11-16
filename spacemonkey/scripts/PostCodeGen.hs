@@ -39,7 +39,9 @@ append' names t =
   sumToString (Proxy :: Proxy SPE.Env) "Env" <> br <>
   sumToString (Proxy :: Proxy SPE.Color) "Color" <> br <>
   sumToString (Proxy :: Proxy SPE.CellType) "CellType" <> br <>
-  sumToString (Proxy :: Proxy SPE.Direction) "Direction" <> br
+  sumToString (Proxy :: Proxy SPE.Direction) "Direction" <> br <>
+  cycleSum (Proxy :: Proxy SPE.Color) "Color" <> br <>
+  cycleSum (Proxy :: Proxy SPE.CellType) "CellType" <> br
   where
     br = "\n"
     comment =
@@ -60,12 +62,28 @@ sumToString Proxy name =
   T.concat pairs
   where
     pairs = map f $ enumerate @a
-    f v = let v' = T.pack $ show v
+    f v = let v' = packs v
           in T.replicate 8 " " <> v' <> " -> \"" <> v' <> "\"\n"
+
+cycleSum :: forall a. (Show a, Enum a, Bounded a) => Proxy a -> T.Text ->
+               T.Text
+cycleSum Proxy name =
+  "cycle" <> name <> " : " <> name <> " -> " <> name <> "\n" <>
+  "cycle" <> name <> " val = \n" <>
+  "    case val of \n" <>
+  T.concat pairs
+  where
+    pairs = map f . genPairs $ enumerate @a
+    genPairs xs = zip xs (tail xs ++ [head xs])
+    f (a, b) = let (a', b') = (packs a, packs b)
+               in T.replicate 8 " " <> a' <> " -> " <> b' <> "\n"
+
 
 enumerate :: (Enum a, Bounded a) => [a]
 enumerate = [minBound .. maxBound]
 
+packs :: (Show a) => a -> T.Text
+packs = T.pack . show
 --------------------------------------------------------------------------------
 
 -- Text.Replace will replace all non-verlapping instances of old with new

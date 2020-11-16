@@ -15,7 +15,7 @@ type alias Flags =
 type Msg
     = WindowResize (Int, Int)
     | DirectionKeyPress CSP.Direction
-    | ToggleColor
+    | ToggleColorKeyPress
     | NoAction
     | GetWorldId (Result Http.Error (Maybe CSP.WorldId))
     | GetWorld (Result Http.Error (Maybe CSP.World))
