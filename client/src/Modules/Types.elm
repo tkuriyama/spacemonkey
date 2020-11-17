@@ -3,6 +3,7 @@ module Modules.Types exposing (..)
 import List.Extra as ListE
 import Maybe.Extra as MaybeE
 
+import Html exposing (Html)
 import Http exposing (Error)
 
 import CodeGen.Spacemonkey as CSP
@@ -17,6 +18,7 @@ type Msg
     | DirectionKeyPress CSP.Direction
     | CycleColorKeyPress
     | NoAction
+    | TogglePopup
     | GetWorldId (Result Http.Error (Maybe CSP.WorldId))
     | GetWorld (Result Http.Error (Maybe CSP.World))
     | GetGrid (Result Http.Error (List CSP.Cell))
@@ -35,6 +37,7 @@ type alias Model
       , self : CSP.User
       , others : List CSP.User
       , viewOpts : ViewOpts
+      , popupOpen : IsModalOpen
       , errorMsg : Maybe String
       }
 
@@ -50,6 +53,14 @@ type alias ViewOpts
       }
 
 --------------------------------------------------------------------------------
+-- Bulma types
+
+type alias Modal msg = Html msg
+
+type alias IsModalOpen = Bool
+
+--------------------------------------------------------------------------------
+-- Default values for some data types
 
 defaultModel : Model
 defaultModel =
@@ -72,6 +83,7 @@ defaultModel =
                  , camera = ((0, 0), (0, 0))
                  , cellSize = 40
                  }
+    , popupOpen = False
     , errorMsg = Nothing
     }
 

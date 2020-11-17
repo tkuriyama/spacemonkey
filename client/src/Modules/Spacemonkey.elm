@@ -7,6 +7,7 @@ import Update.Extra as UpdateE
 
 import Browser exposing (element)
 import Browser.Events as E
+
 import Html exposing (Html, div, text, button, input, br)
 import Html.Attributes exposing (class, value, placeholder)
 import Json.Decode as Decode
@@ -44,7 +45,11 @@ initModel flags =
 --------------------------------------------------------------------------------
 
 view : Model -> Html msg
-view = Show.show
+view model = div
+             []
+             [ Show.show model
+             , Show.popup model
+             ]
 
 --------------------------------------------------------------------------------
 
@@ -60,6 +65,10 @@ update msg model =
             (model, cycleColor model.worldId model.grid model.self)
         NoAction ->
             (model, Cmd.none)
+        TogglePopup ->
+            let popupOpen = if model.popupOpen then False else True
+            in ({ model | popupOpen = popupOpen }, Cmd.none)
+
         -- HTTP Rest Updates
         GetWorldId (Ok mWid) -> case mWid of
             (Just wid) ->
@@ -188,4 +197,5 @@ toKey keyValue =
         "d" -> DirectionKeyPress CSP.East
         "a" -> DirectionKeyPress CSP.West
         "c" -> CycleColorKeyPress
+        "e" -> TogglePopup
         _ -> NoAction

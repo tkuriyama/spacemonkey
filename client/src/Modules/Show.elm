@@ -1,5 +1,8 @@
 module Modules.Show exposing (..)
 
+import Bulma.Components exposing (modal, modalClose, modalBackground,
+                                  modalContent)
+import Bulma.Modifiers exposing (..)
 import Color
 import Html exposing (Html, div)
 import Html.Attributes exposing (class, value, placeholder)
@@ -11,7 +14,6 @@ import TypedSvg.Attributes exposing (x, y, x1, y1, x2, y2, cx, cy, r, rx,
                                      width, height, viewBox)
 import TypedSvg.Core exposing (Svg, text)
 import TypedSvg.Types exposing (Paint(..), px, Opacity(..))
-
 
 import CodeGen.Spacemonkey as CSP exposing (..)
 import Modules.Camera as Camera
@@ -59,12 +61,12 @@ showCell cellSize c =
 mapColor : CSP.Color -> Color.Color
 mapColor color =
     case color of
-        White -> Color.white
-        Yellow -> Color.yellow
-        Red -> Color.red
-        Green -> Color.green
-        Blue -> Color.blue
-        Grey -> Color.darkGrey
+        CSP.White -> Color.white
+        CSP.Yellow -> Color.yellow
+        CSP.Red -> Color.red
+        CSP.Green -> Color.green
+        CSP.Blue -> Color.blue
+        CSP.Grey -> Color.darkGrey
 
 --------------------------------------------------------------------------------
 
@@ -101,3 +103,18 @@ showUser cellSize u =
              , fill <| Paint Color.white ]
              []
        ]
+
+
+--------------------------------------------------------------------------------
+
+popup : Model -> Html msg
+popup model =
+    modal
+        model.popupOpen
+        []
+        [ modalBackground [] []
+        , modalContent []
+            [ text "Anything can go here!"
+            ]
+        , modalClose Large [] []
+        ]
