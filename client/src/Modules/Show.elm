@@ -105,11 +105,11 @@ mapColor : CSP.Color -> Color.Color
 mapColor color =
     case color of
         CSP.White -> Color.white
-        CSP.Yellow -> Color.yellow
-        CSP.Red -> Color.red
+        CSP.Yellow -> Color.rgb255 252 169 3
+        CSP.Red -> Color.rgb255 235 47 47
         CSP.Green -> Color.green
-        CSP.Blue -> Color.blue
-        CSP.Grey -> Color.darkGrey
+        CSP.Blue -> Color.rgb255 121 176 242
+        CSP.Grey -> Color.rgb255 217 217 217
 
 --------------------------------------------------------------------------------
 
