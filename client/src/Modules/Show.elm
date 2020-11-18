@@ -6,16 +6,19 @@ import Bulma.Form exposing (..)
 import Bulma.Elements as BulmaE
 import Bulma.Modifiers as BulmaM
 import Color
-import Html exposing (Attribute, Html, div)
-import Html.Attributes exposing (class, value, placeholder)
+import Html exposing (Attribute, Html, div, i)
+import Html.Attributes as HtmlA exposing (class, value, placeholder)
 import Html.Events exposing (onInput)
 import TypedSvg exposing (circle, svg, rect, line, text_)
 import TypedSvg.Attributes exposing (x, y, x1, y1, x2, y2, cx, cy, r, rx,
                                      fill, fillOpacity, opacity,
                                      stroke, strokeWidth, class,
-                                     fontSize, width, height, viewBox)
+                                     fontSize, fontFamily, width, height,
+                                    textAnchor, dominantBaseline,
+                                    viewBox)
 import TypedSvg.Core exposing (Svg, text)
-import TypedSvg.Types exposing (Paint(..), px, Opacity(..))
+import TypedSvg.Types exposing (Paint(..), px, percent, Opacity(..),
+                                AnchorAlignment (..), DominantBaseline (..))
 
 import CodeGen.Spacemonkey as CSP exposing (..)
 import Modules.Camera as Camera
@@ -84,9 +87,12 @@ showCell cellSize c =
              ]
              []
        , text_
-             [ x <| px <| cellX + cellSize * 0.05
-             , y <| px <| cellY + cellSize - cellSize * 0.1 -- text draws u=P=
+             [ x <| px <| cellX + cellSize * 0.5
+             , y <| px <| cellY + cellSize - cellSize * 0.45
              , fontSize <| px <| cellSize * 0.85
+             , fontFamily ["Consolas", "monaco", "monospace"]
+             , textAnchor AnchorMiddle
+             , dominantBaseline DominantBaselineMiddle 
              ]
              [ text dispText ]
        ]
@@ -119,42 +125,44 @@ showUser cellSize u =
                 North -> ((userX, userY), (cellSize, dirSize))
                 South -> ((userX, userY + cellSize - dirSize)
                          , (cellSize, dirSize))
-    in [ text_
-             [ x <| px <| userX + cellSize * 0.05
-             , y <| px <| userY + cellSize - cellSize * 0.1 -- text draws up
-             , fontSize <| px <| cellSize * 0.85
+    in [text_
+             [ x <| px <| userX + cellSize * 0.5
+             , y <| px <| userY + cellSize - cellSize * 0.4 -- text draws up
+             , fontSize <| px <| cellSize * 0.8
+             , textAnchor AnchorMiddle
+             , dominantBaseline DominantBaselineMiddle
              ]
              [ text u.userName ]
        , rect
-             [ x <| px dirX1
-             , y <| px dirX2
-             , width <| px dirW
-             , height <| px dirH
-             , stroke <| Paint Color.black
-             , strokeWidth <| px 1
-             , fill <| Paint Color.white ]
-             []
+            [ x <| px dirX1
+            , y <| px dirX2
+            , width <| px dirW
+            , height <| px dirH
+            , stroke <| Paint Color.black
+            , strokeWidth <| px 1
+            , fill <| Paint Color.white ]
+            []
        ]
 
 --------------------------------------------------------------------------------
 
-popup : IsModalOpen -> CSP.Cell -> Html Msg
-popup isOpen cell =
+popup : IsModalOpen -> String -> Html Msg
+popup isOpen cellValue = 
     modal
         isOpen
         []
         [ modalBackground [] []
         , modalContent []
-            [ cellValueInput cell.cellValue
+            [ cellValueInput cellValue
             ]
         , modalClose BulmaM.Large [] []
         ]
 
 cellValueInput : String -> Control Msg
 cellValueInput val =
-    let controlAttrs = []
+    let controlAttrs = [ HtmlA.class "" ]
         inputAttrs   = [ onInput (\s -> UpdateUserBuffer s)
-                       , placeholder val
+                       , HtmlA.value val
                        ]
     in controlText inputModifiers controlAttrs inputAttrs []
 
@@ -167,8 +175,9 @@ inputModifiers =
     , rounded = True
     , readonly = False
     , disabled = False
-    , iconLeft = Nothing
---        Maybe ( BulmaM.Size, List (Attribute msg), BulmaE.IconBody msg )
+    , iconLeft =
+        Just ( BulmaM.Large, [], i [ HtmlA.class "commenting" ] []) -- TODO doesn't work?
     , iconRight = Nothing
 --        Maybe ( BulmaM.Size, List (Attribute msg), BulmaE.IconBody msg )
     }
+

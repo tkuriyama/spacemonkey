@@ -6,7 +6,8 @@ import List.Extra as ListE
 import Update.Extra as UpdateE
 
 import Browser exposing (element)
-import Browser.Events as E
+import Browser.Events exposing (onResize)
+import Keyboard as K
 
 import Html exposing (Html, div, text, button, input, br)
 import Html.Attributes exposing (class, value, placeholder)
@@ -49,8 +50,9 @@ view model =
     div
     []
     [ Show.show model
-    , Show.popup model.popupOpen <| Utils.getFacingM model
+    , Show.popup model.popupOpen model.userBuffer
     ]
+
 
 --------------------------------------------------------------------------------
 
@@ -60,22 +62,10 @@ update msg model =
         WindowResize (w, h) ->
             let vo = Camera.reinitCam w h model.viewOpts
             in ({ model | viewOpts = vo }, Cmd.none)
-        DirectionKeyPress dir ->
-            (model, moveOrReface model.grid model.userId model.self dir)
-        CycleColorKeyPress ->
-            (model, cycleColor model.worldId model.grid model.self)
+        KeyMsg keyMsg ->
+            keyHandler model <| K.update keyMsg model.pressedKeys
         UpdateUserBuffer s ->
-            ({ model | userBuffer = s}, Cmd.none)
-        ShowPopup ->
-            ({ model | popupOpen = True }, Cmd.none)
-        HidePopup ->
-            case model.popupOpen of
-                False -> (model, Cmd.none)
-                True ->
-                    let c = Utils.getFacingM model
-                        wid = model.worldId
-                        s = model.userBuffer
-                    in ({ model | popupOpen = False }, saveCellValue wid c s)
+            ({ model | userBuffer = s }, Cmd.none)
         NoAction ->
             (model, Cmd.none)
 
@@ -203,25 +193,56 @@ applyValue grid user s =
 
 --------------------------------------------------------------------------------
 
+keyHandler : Model -> List K.Key -> (Model, Cmd Msg)
+keyHandler model keys =
+    case keys of
+        [] -> ({ model | pressedKeys = [] }, Cmd.none)
+        (k::ks) -> case model.popupOpen of
+                       True -> popupKeyHandler model k ks
+                       False -> normalKeyHandler model k ks
+
+popupKeyHandler : Model -> K.Key -> List K.Key -> (Model, Cmd Msg)
+popupKeyHandler model k ks =
+    case k of
+        K.Escape ->
+            ({ model | popupOpen = False, userBuffer = ""}, Cmd.none)
+        K.Enter ->
+            let c = Utils.getFacingM model
+                wid = model.worldId
+                s = model.userBuffer
+            in ( { model | popupOpen = False, userBuffer = ""}
+               , saveCellValue wid c s )
+        _ -> (model, Cmd.none)
+
+normalKeyHandler : Model -> K.Key -> List K.Key -> (Model, Cmd Msg)
+normalKeyHandler model k ks =
+    let mv = moveOrReface model.grid model.userId model.self
+        cycle = cycleColor model.worldId model.grid model.self
+        model_ =
+            case k of
+                K.Character "E" ->
+                    let c = Utils.getFacingM model
+                    in { model | popupOpen = True, userBuffer = c.cellValue }
+                _ -> model
+        cmd =
+            case k of
+                K.Character "W" -> mv CSP.North
+                K.ArrowUp -> mv CSP.North
+                K.Character "S" -> mv CSP.South
+                K.ArrowDown -> mv CSP.South
+                K.Character "D" -> mv CSP.East
+                K.ArrowRight -> mv CSP.East
+                K.Character "A" -> mv CSP.West
+                K.Character "C" -> cycle
+                K.ArrowLeft -> mv CSP.West
+                _ -> Cmd.none
+    in (model_, cmd)
+
+--------------------------------------------------------------------------------
+
 subscriptions : Model -> Sub Msg
-subscriptions _ =
+subscriptions model =
     Sub.batch
-        [ E.onResize (\w h -> WindowResize (w, h))
-        , E.onKeyPress keyDecoder
+        [ onResize (\w h -> WindowResize (w, h))
+        , Sub.map KeyMsg K.subscriptions
         ]
-
-keyDecoder : Decode.Decoder Msg
-keyDecoder =
-    Decode.map toKey (Decode.field "key" Decode.string)
-
-toKey : String -> Msg
-toKey keyValue =
-     case keyValue of
-        "w" -> DirectionKeyPress CSP.North
-        "s" -> DirectionKeyPress CSP.South
-        "d" -> DirectionKeyPress CSP.East
-        "a" -> DirectionKeyPress CSP.West
-        "c" -> CycleColorKeyPress
-        "e" -> ShowPopup
-        "Escape" -> HidePopup
-        _ -> NoAction

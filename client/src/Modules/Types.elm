@@ -3,6 +3,8 @@ module Modules.Types exposing (..)
 import List.Extra as ListE
 import Maybe.Extra as MaybeE
 
+import Keyboard exposing (Key(..))
+
 import Html exposing (Html)
 import Http exposing (Error)
 
@@ -15,11 +17,8 @@ type alias Flags =
 
 type Msg
     = WindowResize (Int, Int)
-    | DirectionKeyPress CSP.Direction
-    | CycleColorKeyPress
+    | KeyMsg Keyboard.Msg
     | UpdateUserBuffer String
-    | ShowPopup
-    | HidePopup
     | NoAction
     | GetWorldId (Result Http.Error (Maybe CSP.WorldId))
     | GetWorld (Result Http.Error (Maybe CSP.World))
@@ -41,6 +40,7 @@ type alias Model
       , self : CSP.User
       , others : List CSP.User
       , viewOpts : ViewOpts
+      , pressedKeys : List Key
       , popupOpen : Bool
       , errorMsg : Maybe String
       }
@@ -81,6 +81,7 @@ defaultModel =
                  , camera = ((0, 0), (0, 0))
                  , cellSize = 40
                  }
+    , pressedKeys = []
     , popupOpen = False
     , errorMsg = Nothing
     }

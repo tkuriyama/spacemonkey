@@ -408,7 +408,7 @@ putCellColorByWidByXByYByColor capture_wid capture_x capture_y capture_color toM
             }
 
 putMoveByUidByDirection : (UserId) -> Direction -> (Result Http.Error  (Direction)  -> msg) -> Cmd msg
-putMoveByUidByDirection capture_uid capture_direction toMsg =
+putMoveByUidByDirection capture_ud capture_direction toMsg =
     let
         params =
             List.filterMap identity
@@ -423,7 +423,7 @@ putMoveByUidByDirection capture_uid capture_direction toMsg =
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
                     [ "move"
-                    , (capture_uid |> String.fromInt)
+                    , (capture_ud |> String.fromInt)
                     , (capture_direction |> strEncDirection)
                     ]
                     params
