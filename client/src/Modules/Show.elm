@@ -13,11 +13,13 @@ import TypedSvg exposing (circle, svg, rect, line, text_)
 import TypedSvg.Attributes exposing (x, y, x1, y1, x2, y2, cx, cy, r, rx,
                                      fill, fillOpacity, opacity,
                                      stroke, strokeWidth, class,
-                                     fontSize, fontFamily, width, height,
-                                    textAnchor, dominantBaseline,
-                                    viewBox)
+                                     fontSize, fontFamily, fontWeight,
+                                     width, height,
+                                     textAnchor, dominantBaseline,
+                                     viewBox)
 import TypedSvg.Core exposing (Svg, text)
 import TypedSvg.Types exposing (Paint(..), px, percent, Opacity(..),
+                                FontWeight(..),
                                 AnchorAlignment (..), DominantBaseline (..))
 
 import CodeGen.Spacemonkey as CSP exposing (..)
@@ -91,8 +93,10 @@ showCell cellSize c =
              , y <| px <| cellY + cellSize - cellSize * 0.45
              , fontSize <| px <| cellSize * 0.85
              , fontFamily ["Consolas", "monaco", "monospace"]
+             -- , fontWeight FontWeightBold
              , textAnchor AnchorMiddle
-             , dominantBaseline DominantBaselineMiddle 
+             , dominantBaseline DominantBaselineMiddle
+             , fill <| Paint Color.white
              ]
              [ text dispText ]
        ]
@@ -147,7 +151,7 @@ showUser cellSize u =
 --------------------------------------------------------------------------------
 
 popup : IsModalOpen -> String -> Html Msg
-popup isOpen cellValue = 
+popup isOpen cellValue =
     modal
         isOpen
         []

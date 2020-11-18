@@ -222,7 +222,10 @@ normalKeyHandler model k ks =
             case k of
                 K.Character "E" ->
                     let c = Utils.getFacingM model
-                    in { model | popupOpen = True, userBuffer = c.cellValue }
+                    in case canEditText c of
+                           True -> { model | popupOpen = True
+                                   , userBuffer = c.cellValue }
+                           False -> model
                 _ -> model
         cmd =
             case k of
@@ -237,6 +240,12 @@ normalKeyHandler model k ks =
                 K.ArrowLeft -> mv CSP.West
                 _ -> Cmd.none
     in (model_, cmd)
+
+canEditText : CSP.Cell -> Bool
+canEditText c = c.cellCType == CSP.Std && c.cellColor /= CSP.White
+
+canEditType : CSP.Cell -> Bool
+canEditType c = c.cellCType /= CSP.Fixed
 
 --------------------------------------------------------------------------------
 
