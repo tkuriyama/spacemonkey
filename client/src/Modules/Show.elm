@@ -1,23 +1,48 @@
-module Modules.Show exposing (..)
+module Modules.Show exposing (show, popup)
 
 import Bulma.Components exposing (modal, modalClose, modalBackground,
                                   modalContent)
-import Bulma.Modifiers exposing (..)
+import Bulma.Form exposing (..)
+import Bulma.Elements as BulmaE
+import Bulma.Modifiers as BulmaM
 import Color
-import Html exposing (Html, div)
+import Html exposing (Attribute, Html, div)
 import Html.Attributes exposing (class, value, placeholder)
+import Html.Events exposing (onInput)
 import TypedSvg exposing (circle, svg, rect, line, text_)
 import TypedSvg.Attributes exposing (x, y, x1, y1, x2, y2, cx, cy, r, rx,
                                      fill, fillOpacity, opacity,
                                      stroke, strokeWidth, class,
-                                     fontSize,
-                                     width, height, viewBox)
+                                     fontSize, width, height, viewBox)
 import TypedSvg.Core exposing (Svg, text)
 import TypedSvg.Types exposing (Paint(..), px, Opacity(..))
 
 import CodeGen.Spacemonkey as CSP exposing (..)
 import Modules.Camera as Camera
 import Modules.Types exposing (..)
+import Modules.Utils as Utils
+
+--------------------------------------------------------------------------------
+-- Bulma types
+
+type alias Control msg = Html msg
+type alias Modal msg = Html msg
+
+type alias IsModalOpen = Bool
+
+type alias InputModifiers msg =
+    { size : BulmaM.Size
+    , state : BulmaM.State
+    , color : BulmaM.Color
+    , expanded : Bool
+    , rounded : Bool
+    , readonly : Bool
+    , disabled : Bool
+    , iconLeft :
+        Maybe ( BulmaM.Size, List (Attribute msg), BulmaE.IconBody msg )
+    , iconRight :
+        Maybe ( BulmaM.Size, List (Attribute msg), BulmaE.IconBody msg )
+    }
 
 --------------------------------------------------------------------------------
 
@@ -28,7 +53,7 @@ show m =
         users = m.self :: m.others
               |> Camera.projectUsers m.viewOpts.camera
         (w, h) = (m.viewOpts.windowWidth, m.viewOpts.windowHeight)
-        cellSize = m.viewOpts.cellSize
+        cellSize = toFloat m.viewOpts.cellSize
     in div
        []
        [ svg
@@ -40,23 +65,31 @@ show m =
 
 --------------------------------------------------------------------------------
 
-showGrid : Int -> List CSP.Cell -> List (Svg msg)
-showGrid cellSize = List.map (showCell cellSize)
+showGrid : Float -> List CSP.Cell -> List (Svg msg)
+showGrid cellSize = List.concatMap (showCell cellSize)
 
-showCell : Int -> CSP.Cell -> Svg msg
+showCell : Float -> CSP.Cell -> List (Svg msg)
 showCell cellSize c =
-    let cellSize_ = toFloat cellSize
-        project x = toFloat x * cellSize_
-    in rect
-        [ x <| px <| project c.cellX
-        , y <| px <| project c.cellY
-        , width <| px cellSize_
-        , height <| px cellSize_
-        , stroke <| Paint Color.grey
-        , strokeWidth <| px 1
-        , fill <| Paint <| mapColor c.cellColor
-        ]
-        []
+    let (cellX, cellY) =
+            (toFloat c.cellX * cellSize, toFloat c.cellY * cellSize)
+        dispText = Utils.stringHead c.cellValue
+    in [ rect
+             [ x <| px <| cellX
+             , y <| px <| cellY
+             , width <| px cellSize
+             , height <| px cellSize
+             , stroke <| Paint Color.grey
+             , strokeWidth <| px 1
+             , fill <| Paint <| mapColor c.cellColor
+             ]
+             []
+       , text_
+             [ x <| px <| cellX + cellSize * 0.05
+             , y <| px <| cellY + cellSize - cellSize * 0.1 -- text draws u=P=
+             , fontSize <| px <| cellSize * 0.85
+             ]
+             [ text dispText ]
+       ]
 
 mapColor : CSP.Color -> Color.Color
 mapColor color =
@@ -70,27 +103,26 @@ mapColor color =
 
 --------------------------------------------------------------------------------
 
-showUsers : Int -> List CSP.User -> List (Svg msg)
+showUsers : Float -> List CSP.User -> List (Svg msg)
 showUsers cellSize = List.concatMap (showUser cellSize)
 
-showUser: Int -> CSP.User -> List (Svg msg)
+showUser: Float -> CSP.User -> List (Svg msg)
 showUser cellSize u =
     let dirSize = 3
-        cellSize_ = toFloat cellSize
-        project n = toFloat n * cellSize_
-        (userX, userY) = (project u.userX, project u.userY)
+        (userX, userY) =
+            (toFloat u.userX * cellSize, toFloat u.userY * cellSize)
         ((dirX1, dirX2), (dirW, dirH)) =
             case u.userFacing of
-                East -> ((userX + cellSize_ - dirSize, userY)
-                        , (dirSize, cellSize_))
-                West -> ((userX, userY), (dirSize, cellSize_))
-                North -> ((userX, userY), (cellSize_, dirSize))
-                South -> ((userX, userY + cellSize_ - dirSize)
-                         , (cellSize_, dirSize))
+                East -> ((userX + cellSize - dirSize, userY)
+                        , (dirSize, cellSize))
+                West -> ((userX, userY), (dirSize, cellSize))
+                North -> ((userX, userY), (cellSize, dirSize))
+                South -> ((userX, userY + cellSize - dirSize)
+                         , (cellSize, dirSize))
     in [ text_
-             [ x <| px <| userX + cellSize_ * 0.05
-             , y <| px <| userY + cellSize_ - cellSize_ * 0.1 -- text draws up
-             , fontSize <| px <| cellSize_ * 0.85
+             [ x <| px <| userX + cellSize * 0.05
+             , y <| px <| userY + cellSize - cellSize * 0.1 -- text draws up
+             , fontSize <| px <| cellSize * 0.85
              ]
              [ text u.userName ]
        , rect
@@ -104,17 +136,39 @@ showUser cellSize u =
              []
        ]
 
-
 --------------------------------------------------------------------------------
 
-popup : Model -> Html msg
-popup model =
+popup : IsModalOpen -> CSP.Cell -> Html Msg
+popup isOpen cell =
     modal
-        model.popupOpen
+        isOpen
         []
         [ modalBackground [] []
         , modalContent []
-            [ text "Anything can go here!"
+            [ cellValueInput cell.cellValue
             ]
-        , modalClose Large [] []
+        , modalClose BulmaM.Large [] []
         ]
+
+cellValueInput : String -> Control Msg
+cellValueInput val =
+    let controlAttrs = []
+        inputAttrs   = [ onInput (\s -> UpdateUserBuffer s)
+                       , placeholder val
+                       ]
+    in controlText inputModifiers controlAttrs inputAttrs []
+
+inputModifiers : InputModifiers msg
+inputModifiers =
+    { size = BulmaM.Large
+    , state = BulmaM.Active
+    , color = BulmaM.Default
+    , expanded = True
+    , rounded = True
+    , readonly = False
+    , disabled = False
+    , iconLeft = Nothing
+--        Maybe ( BulmaM.Size, List (Attribute msg), BulmaE.IconBody msg )
+    , iconRight = Nothing
+--        Maybe ( BulmaM.Size, List (Attribute msg), BulmaE.IconBody msg )
+    }

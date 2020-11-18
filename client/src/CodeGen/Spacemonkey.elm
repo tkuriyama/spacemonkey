@@ -258,8 +258,8 @@ getWorldByWid capture_wid toMsg =
                 Nothing
             }
 
-getGridByWorldid : (WorldId) -> (Result Http.Error  ((List Cell))  -> msg) -> Cmd msg
-getGridByWorldid capture_worldid toMsg =
+getGridByWid : (WorldId) -> (Result Http.Error  ((List Cell))  -> msg) -> Cmd msg
+getGridByWid capture_wid toMsg =
     let
         params =
             List.filterMap identity
@@ -274,7 +274,7 @@ getGridByWorldid capture_worldid toMsg =
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
                     [ "grid"
-                    , (capture_worldid |> String.fromInt)
+                    , (capture_wid |> String.fromInt)
                     ]
                     params
             , body =
@@ -287,8 +287,8 @@ getGridByWorldid capture_worldid toMsg =
                 Nothing
             }
 
-getMsgsByWorldidByRecentN : (WorldId) -> Int -> (Result Http.Error  ((List Message))  -> msg) -> Cmd msg
-getMsgsByWorldidByRecentN capture_worldid capture_recentN toMsg =
+getMsgsByWidByRecentN : (WorldId) -> Int -> (Result Http.Error  ((List Message))  -> msg) -> Cmd msg
+getMsgsByWidByRecentN capture_wid capture_recentN toMsg =
     let
         params =
             List.filterMap identity
@@ -303,7 +303,7 @@ getMsgsByWorldidByRecentN capture_worldid capture_recentN toMsg =
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
                     [ "msgs"
-                    , (capture_worldid |> String.fromInt)
+                    , (capture_wid |> String.fromInt)
                     , (capture_recentN |> String.fromInt)
                     ]
                     params
@@ -317,8 +317,8 @@ getMsgsByWorldidByRecentN capture_worldid capture_recentN toMsg =
                 Nothing
             }
 
-getUserByUserid : (UserId) -> (Result Http.Error  ((Maybe User))  -> msg) -> Cmd msg
-getUserByUserid capture_userid toMsg =
+getUserByUid : (UserId) -> (Result Http.Error  ((Maybe User))  -> msg) -> Cmd msg
+getUserByUid capture_uid toMsg =
     let
         params =
             List.filterMap identity
@@ -333,7 +333,7 @@ getUserByUserid capture_userid toMsg =
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
                     [ "user"
-                    , (capture_userid |> String.fromInt)
+                    , (capture_uid |> String.fromInt)
                     ]
                     params
             , body =
@@ -346,8 +346,8 @@ getUserByUserid capture_userid toMsg =
                 Nothing
             }
 
-getUsersByWorldid : (WorldId) -> (Result Http.Error  ((List User))  -> msg) -> Cmd msg
-getUsersByWorldid capture_worldid toMsg =
+getUsersByWid : (WorldId) -> (Result Http.Error  ((List User))  -> msg) -> Cmd msg
+getUsersByWid capture_wid toMsg =
     let
         params =
             List.filterMap identity
@@ -362,7 +362,7 @@ getUsersByWorldid capture_worldid toMsg =
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
                     [ "users"
-                    , (capture_worldid |> String.fromInt)
+                    , (capture_wid |> String.fromInt)
                     ]
                     params
             , body =
@@ -375,8 +375,8 @@ getUsersByWorldid capture_worldid toMsg =
                 Nothing
             }
 
-putCellColorByWorldidByXByYByColor : (WorldId) -> Int -> Int -> Color -> (Result Http.Error  (Color)  -> msg) -> Cmd msg
-putCellColorByWorldidByXByYByColor capture_worldid capture_x capture_y capture_color toMsg =
+putCellColorByWidByXByYByColor : (WorldId) -> Int -> Int -> Color -> (Result Http.Error  (Color)  -> msg) -> Cmd msg
+putCellColorByWidByXByYByColor capture_wid capture_x capture_y capture_color toMsg =
     let
         params =
             List.filterMap identity
@@ -391,7 +391,7 @@ putCellColorByWorldidByXByYByColor capture_worldid capture_x capture_y capture_c
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
                     [ "cellColor"
-                    , (capture_worldid |> String.fromInt)
+                    , (capture_wid |> String.fromInt)
                     , (capture_x |> String.fromInt)
                     , (capture_y |> String.fromInt)
                     , (capture_color |> strEncColor)
@@ -407,8 +407,8 @@ putCellColorByWorldidByXByYByColor capture_worldid capture_x capture_y capture_c
                 Nothing
             }
 
-putMoveByUserIdByDirection : (UserId) -> Direction -> (Result Http.Error  (Direction)  -> msg) -> Cmd msg
-putMoveByUserIdByDirection capture_userId capture_direction toMsg =
+putMoveByUidByDirection : (UserId) -> Direction -> (Result Http.Error  (Direction)  -> msg) -> Cmd msg
+putMoveByUidByDirection capture_uid capture_direction toMsg =
     let
         params =
             List.filterMap identity
@@ -423,7 +423,7 @@ putMoveByUserIdByDirection capture_userId capture_direction toMsg =
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
                     [ "move"
-                    , (capture_userId |> String.fromInt)
+                    , (capture_uid |> String.fromInt)
                     , (capture_direction |> strEncDirection)
                     ]
                     params
@@ -437,8 +437,8 @@ putMoveByUserIdByDirection capture_userId capture_direction toMsg =
                 Nothing
             }
 
-putRefaceByUserIdByDirection : (UserId) -> Direction -> (Result Http.Error  (Direction)  -> msg) -> Cmd msg
-putRefaceByUserIdByDirection capture_userId capture_direction toMsg =
+putRefaceByUidByDirection : (UserId) -> Direction -> (Result Http.Error  (Direction)  -> msg) -> Cmd msg
+putRefaceByUidByDirection capture_uid capture_direction toMsg =
     let
         params =
             List.filterMap identity
@@ -453,7 +453,7 @@ putRefaceByUserIdByDirection capture_userId capture_direction toMsg =
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
                     [ "reface"
-                    , (capture_userId |> String.fromInt)
+                    , (capture_uid |> String.fromInt)
                     , (capture_direction |> strEncDirection)
                     ]
                     params
@@ -461,6 +461,38 @@ putRefaceByUserIdByDirection capture_userId capture_direction toMsg =
                 Http.emptyBody
             , expect =
                 Http.expectJson toMsg jsonDecDirection
+            , timeout =
+                Nothing
+            , tracker =
+                Nothing
+            }
+
+putCellValueByWidByXByYByVal : (WorldId) -> Int -> Int -> String -> (Result Http.Error  (String)  -> msg) -> Cmd msg
+putCellValueByWidByXByYByVal capture_wid capture_x capture_y capture_val toMsg =
+    let
+        params =
+            List.filterMap identity
+            (List.concat
+                [])
+    in
+        Http.request
+            { method =
+                "PUT"
+            , headers =
+                []
+            , url =
+                Url.Builder.crossOrigin "http://localhost:8080"
+                    [ "cellValue"
+                    , (capture_wid |> String.fromInt)
+                    , (capture_x |> String.fromInt)
+                    , (capture_y |> String.fromInt)
+                    , (capture_val)
+                    ]
+                    params
+            , body =
+                Http.emptyBody
+            , expect =
+                Http.expectJson toMsg (Json.Decode.string)
             , timeout =
                 Nothing
             , tracker =

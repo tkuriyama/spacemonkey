@@ -93,6 +93,7 @@ replace' names enums t = foldr f t replacements
     f (old, new) acc =
       T.replace old new acc
     replacements =
+      ("jsonDecText", "(Json.Decode.string)") : 
       [( "Key " <> x,
          x <> "Id" )
        | x <- names] ++

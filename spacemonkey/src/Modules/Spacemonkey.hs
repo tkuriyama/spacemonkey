@@ -73,16 +73,18 @@ type API =
        Get '[JSON] (Maybe WorldId)
   :<|> "world" :> Capture "wid" WorldId :>
        Get '[JSON] (Maybe World)
-  :<|> "grid" :> Capture "worldid" WorldId :> Get '[JSON] [Cell]
-  :<|> "msgs" :> Capture "worldid" WorldId :>
+  :<|> "grid" :> Capture "wid" WorldId :> Get '[JSON] [Cell]
+  :<|> "msgs" :> Capture "wid" WorldId :>
        Capture "recentN" Int :> Get '[JSON] [Message]
-  :<|> "user" :> Capture "userid" UserId :>
+  :<|> "user" :> Capture "uid" UserId :>
        Get '[JSON] (Maybe User)
-  :<|> "users" :> Capture "worldid" WorldId :> Get '[JSON] [User]
-  :<|> "cellColor" :> Capture "worldid" WorldId :>
+  :<|> "users" :> Capture "wid" WorldId :> Get '[JSON] [User]
+  :<|> "cellColor" :> Capture "wid" WorldId :>
        Capture "x" Int :> Capture "y" Int :> Capture "color" Color :>
        Put '[JSON] Color
-  :<|> "move" :> Capture "userId" UserId :>
+  :<|> "move" :> Capture "uid" UserId :>
        Capture "direction" Direction:> Put '[JSON] Direction
-  :<|> "reface" :> Capture "userId" UserId :>
+  :<|> "reface" :> Capture "uid" UserId :>
        Capture "direction" Direction:> Put '[JSON] Direction
+  :<|> "cellValue" :> Capture "wid" WorldId :> Capture "x" Int :>
+       Capture "y" Int :> Capture "val" T.Text :> Put '[JSON] T.Text

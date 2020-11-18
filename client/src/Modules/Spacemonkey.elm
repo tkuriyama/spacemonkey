@@ -44,12 +44,13 @@ initModel flags =
 
 --------------------------------------------------------------------------------
 
-view : Model -> Html msg
-view model = div
-             []
-             [ Show.show model
-             , Show.popup model
-             ]
+view : Model -> Html Msg
+view model =
+    div
+    []
+    [ Show.show model
+    , Show.popup model.popupOpen <| Utils.getFacingM model
+    ]
 
 --------------------------------------------------------------------------------
 
@@ -63,11 +64,20 @@ update msg model =
             (model, moveOrReface model.grid model.userId model.self dir)
         CycleColorKeyPress ->
             (model, cycleColor model.worldId model.grid model.self)
+        UpdateUserBuffer s ->
+            ({ model | userBuffer = s}, Cmd.none)
+        ShowPopup ->
+            ({ model | popupOpen = True }, Cmd.none)
+        HidePopup ->
+            case model.popupOpen of
+                False -> (model, Cmd.none)
+                True ->
+                    let c = Utils.getFacingM model
+                        wid = model.worldId
+                        s = model.userBuffer
+                    in ({ model | popupOpen = False }, saveCellValue wid c s)
         NoAction ->
             (model, Cmd.none)
-        TogglePopup ->
-            let popupOpen = if model.popupOpen then False else True
-            in ({ model | popupOpen = popupOpen }, Cmd.none)
 
         -- HTTP Rest Updates
         GetWorldId (Ok mWid) -> case mWid of
@@ -115,6 +125,11 @@ update msg model =
             in ({model | grid = grid}, Cmd.none)
         Recolor (Err e) ->
             Utils.httpError model e
+        ApplyValue (Ok s) ->
+            let grid = applyValue model.grid model.self s
+            in ({model | grid = grid}, Cmd.none)
+        ApplyValue (Err e) ->
+            Utils.httpError model e
 
 initWorld : CSP.Env -> Cmd Msg
 initWorld env = CSP.getWorldIdByEnv env GetWorldId
@@ -123,13 +138,13 @@ getWorld : CSP.WorldId -> Cmd Msg
 getWorld wid = CSP.getWorldByWid wid GetWorld
 
 getUser : CSP.UserId -> Cmd Msg
-getUser uid = CSP.getUserByUserid uid GetUser
+getUser uid = CSP.getUserByUid uid GetUser
 
 getGrid : CSP.WorldId -> Cmd Msg
-getGrid wid = CSP.getGridByWorldid wid GetGrid
+getGrid wid = CSP.getGridByWid wid GetGrid
 
 getUsers : CSP.WorldId -> Cmd Msg
-getUsers wid = CSP.getUsersByWorldid wid GetUsers
+getUsers wid = CSP.getUsersByWid wid GetUsers
 
 moveOrReface : Grid -> CSP.UserId -> CSP.User -> CSP.Direction -> Cmd Msg
 moveOrReface grid uid user dir =
@@ -143,10 +158,10 @@ validMove grid user dir =
     in c.cellCType == CSP.Std && c.cellColor == CSP.White
 
 putMove : CSP.UserId -> CSP.Direction -> Cmd Msg
-putMove uid dir = CSP.putMoveByUserIdByDirection uid dir Move
+putMove uid dir = CSP.putMoveByUidByDirection uid dir Move
 
 putReface : CSP.UserId -> CSP.Direction -> Cmd Msg
-putReface uid dir = CSP.putRefaceByUserIdByDirection uid dir Reface
+putReface uid dir = CSP.putRefaceByUidByDirection uid dir Reface
 
 applyMove : CSP.User -> CSP.Direction -> ViewOpts -> (CSP.User, ViewOpts)
 applyMove user dir vo =
@@ -165,7 +180,7 @@ cycleColor : CSP.WorldId -> Grid -> CSP.User -> Cmd Msg
 cycleColor wid grid user =
     let c = Utils.getFacing grid (user.userX, user.userY) user.userFacing
     in case c.cellCType of
-           CSP.Std -> let f = CSP.putCellColorByWorldidByXByYByColor
+           CSP.Std -> let f = CSP.putCellColorByWidByXByYByColor
                           color = CSP.cycleColor c.cellColor
                       in f wid c.cellX c.cellY color Recolor
            _ -> Cmd.none
@@ -174,6 +189,16 @@ applyColor : Grid -> CSP.User -> CSP.Color -> Grid
 applyColor grid user color =
     let c = Utils.getFacing grid (user.userX, user.userY) user.userFacing
         c_ = {c | cellColor = color}
+    in ListE.setIf (Utils.eqCoord c_) c_ grid
+
+saveCellValue : CSP.WorldId -> CSP.Cell -> String -> Cmd Msg
+saveCellValue wid c s =
+    CSP.putCellValueByWidByXByYByVal wid c.cellX c.cellY s ApplyValue
+
+applyValue : Grid -> CSP.User -> String -> Grid
+applyValue grid user s =
+    let c = Utils.getFacing grid (user.userX, user.userY) user.userFacing
+        c_ = {c | cellValue = s}
     in ListE.setIf (Utils.eqCoord c_) c_ grid
 
 --------------------------------------------------------------------------------
@@ -197,5 +222,6 @@ toKey keyValue =
         "d" -> DirectionKeyPress CSP.East
         "a" -> DirectionKeyPress CSP.West
         "c" -> CycleColorKeyPress
-        "e" -> TogglePopup
+        "e" -> ShowPopup
+        "Escape" -> HidePopup
         _ -> NoAction

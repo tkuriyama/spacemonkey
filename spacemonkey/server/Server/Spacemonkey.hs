@@ -51,7 +51,8 @@ server pool =
   getUsers' :<|>
   setCellColor' :<|>
   move' :<|>
-  reface'
+  reface' :<|>
+  setCellValue'
   where
     getWorldId' = liftIO . getWorldId pool
     getWorld' = liftIO . getWorld pool
@@ -62,6 +63,7 @@ server pool =
     setCellColor' wid x y c = liftIO $ setCellColor pool wid x y c
     move' uid dir = liftIO $ move pool uid dir
     reface' uid dir = liftIO $ reface pool uid dir
+    setCellValue' wid x y v = liftIO $ setCellValue pool wid x y v
 
 getWorldId :: CP -> SPE.Env -> IO (Maybe (SP.Key SP.World))
 getWorldId pool env = flip runSqlPersistMPool pool $ do
@@ -119,3 +121,12 @@ reface pool uid dir = do
   flip runSqlPersistMPool pool $
     update uid [SP.UserFacing =. dir]
   pure dir
+
+setCellValue :: CP -> SP.Key SP.World -> Int -> Int -> T.Text -> IO T.Text
+setCellValue pool wid x y v = do
+  flip runSqlPersistMPool pool $
+    updateWhere
+      [SP.CellEnv ==. wid, SP.CellX ==. x, SP.CellY ==. y]
+      [SP.CellValue =. v]
+  pure v
+

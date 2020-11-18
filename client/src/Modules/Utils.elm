@@ -15,6 +15,10 @@ getDeltas dir = case dir of
                      CSP.East -> (1, 0)
                      CSP.West -> (-1, 0)
 
+eqCoord : CSP.Cell -> CSP.Cell -> Bool
+eqCoord c1 c2 = c1.cellX == c2.cellX && c1.cellY == c2.cellY
+
+-- getFacing -- get the cell that the user (self) is facing
 getFacing : Grid -> Point -> CSP.Direction -> CSP.Cell
 getFacing grid (x, y) dir =
     let (dx, dy) = getDeltas dir
@@ -22,8 +26,9 @@ getFacing grid (x, y) dir =
         f c acc = if (c.cellX, c.cellY) == (x_, y_) then c else acc
     in List.foldr f defaultCell grid
 
-eqCoord : CSP.Cell -> CSP.Cell -> Bool
-eqCoord c1 c2 = c1.cellX == c2.cellX && c1.cellY == c2.cellY
+getFacingM : Model -> CSP.Cell
+getFacingM m =
+    getFacing m.grid (m.self.userX, m.self.userY) m.self.userFacing
 
 --------------------------------------------------------------------------------
 
@@ -44,3 +49,11 @@ buildErrorMsg error =
             "Request failed with status code: " ++ String.fromInt statusCode
         Http.BadBody message ->
             message
+
+--------------------------------------------------------------------------------
+
+-- safe head, returning head as string, or empty string given empty string
+stringHead : String -> String
+stringHead s = case String.uncons s of
+                   Nothing -> ""
+                   Just (x, xs) -> String.cons x ""

@@ -17,8 +17,10 @@ type Msg
     = WindowResize (Int, Int)
     | DirectionKeyPress CSP.Direction
     | CycleColorKeyPress
+    | UpdateUserBuffer String
+    | ShowPopup
+    | HidePopup
     | NoAction
-    | TogglePopup
     | GetWorldId (Result Http.Error (Maybe CSP.WorldId))
     | GetWorld (Result Http.Error (Maybe CSP.World))
     | GetGrid (Result Http.Error (List CSP.Cell))
@@ -27,6 +29,7 @@ type Msg
     | Move (Result Http.Error (CSP.Direction))
     | Reface (Result Http.Error (CSP.Direction))
     | Recolor (Result Http.Error (CSP.Color))
+    | ApplyValue (Result Http.Error (String))
 
 type alias Model
     = { env : CSP.Env
@@ -34,10 +37,11 @@ type alias Model
       , world : CSP.World
       , grid : Grid
       , userId : CSP.UserId
+      , userBuffer : String
       , self : CSP.User
       , others : List CSP.User
       , viewOpts : ViewOpts
-      , popupOpen : IsModalOpen
+      , popupOpen : Bool
       , errorMsg : Maybe String
       }
 
@@ -53,13 +57,6 @@ type alias ViewOpts
       }
 
 --------------------------------------------------------------------------------
--- Bulma types
-
-type alias Modal msg = Html msg
-
-type alias IsModalOpen = Bool
-
---------------------------------------------------------------------------------
 -- Default values for some data types
 
 defaultModel : Model
@@ -71,6 +68,7 @@ defaultModel =
               , worldMaxY = 0 }
     , grid = []
     , userId = 1 -- TODO intialize with login
+    , userBuffer = ""
     , self = { userEnv = 0
              , userName = ""
              , userX = 0
