@@ -65,7 +65,7 @@ update msg model =
         KeyMsg keyMsg ->
             keyHandler model <| K.update keyMsg model.pressedKeys
         UpdateUserBuffer s ->
-            ({ model | userBuffer = s }, Cmd.none)
+            ({ model | userBuffer = (Debug.log "updateUB" s) }, Cmd.none)
         NoAction ->
             (model, Cmd.none)
 
@@ -111,14 +111,16 @@ update msg model =
         Reface(Err e) ->
             Utils.httpError model e
         Recolor (Ok color) ->
-            let grid = applyColor model.grid model.self color
-            in ({model | grid = grid}, Cmd.none)
+            ({model | grid = applyColor model.grid model.self color}, Cmd.none)
         Recolor (Err e) ->
             Utils.httpError model e
         ApplyValue (Ok s) ->
-            let grid = applyValue model.grid model.self s
-            in ({model | grid = grid}, Cmd.none)
+            ({model | grid = applyValue model.grid model.self s}, Cmd.none)
         ApplyValue (Err e) ->
+            Utils.httpError model e
+        ClearValue (Ok b) ->
+            ({model | grid = clearValue model.grid model.self b}, Cmd.none)
+        ClearValue (Err e) ->
             Utils.httpError model e
 
 initWorld : CSP.Env -> Cmd Msg
@@ -139,36 +141,34 @@ getUsers wid = CSP.getUsersByWid wid GetUsers
 moveOrReface : Grid -> CSP.UserId -> CSP.User -> CSP.Direction -> Cmd Msg
 moveOrReface grid uid user dir =
     case user.userFacing == dir of
-        True -> if validMove grid user dir then putMove uid dir else Cmd.none
-        False -> putReface uid dir
+        True ->
+            if validMove grid user dir
+            then CSP.putMoveByUidByDirection uid dir Move
+            else Cmd.none
+        False ->
+            CSP.putRefaceByUidByDirection uid dir Reface
 
 validMove : Grid -> CSP.User -> CSP.Direction -> Bool
 validMove grid user dir =
     let c = Utils.getFacing grid (user.userX, user.userY) dir
     in c.cellCType == CSP.Std && c.cellColor == CSP.White
 
-putMove : CSP.UserId -> CSP.Direction -> Cmd Msg
-putMove uid dir = CSP.putMoveByUidByDirection uid dir Move
-
-putReface : CSP.UserId -> CSP.Direction -> Cmd Msg
-putReface uid dir = CSP.putRefaceByUidByDirection uid dir Reface
-
 applyMove : CSP.User -> CSP.Direction -> ViewOpts -> (CSP.User, ViewOpts)
-applyMove user dir vo =
+applyMove u dir vo =
     let (dx, dy) = Utils.getDeltas dir
-        (x, y) = (user.userX + dx, user.userY + dy)
+        (x, y) = (u.userX + dx, u.userY + dy)
         ((cx1, cy1), (cx2, cy2)) = vo.camera
         vo_ = if x <= cx1 || x >= cx2 - 1 || y <= cy1 || y >= cy2 - 1
               then Camera.moveCam dir vo
               else vo
-    in ({ user | userX = x, userY = y }, vo_)
+    in ({ u | userX = x, userY = y }, vo_)
 
 applyReface : CSP.User -> CSP.Direction -> CSP.User
-applyReface user dir = { user | userFacing = dir }
+applyReface u dir = { u | userFacing = dir }
 
 cycleColor : CSP.WorldId -> Grid -> CSP.User -> Cmd Msg
-cycleColor wid grid user =
-    let c = Utils.getFacing grid (user.userX, user.userY) user.userFacing
+cycleColor wid grid u =
+    let c = Utils.getFacing grid (u.userX, u.userY) u.userFacing
     in case c.cellCType of
            CSP.Std -> let f = CSP.putCellColorByWidByXByYByColor
                           color = CSP.cycleColor c.cellColor
@@ -176,30 +176,37 @@ cycleColor wid grid user =
            _ -> Cmd.none
 
 applyColor : Grid -> CSP.User -> CSP.Color -> Grid
-applyColor grid user color =
-    let c = Utils.getFacing grid (user.userX, user.userY) user.userFacing
+applyColor grid u color =
+    let c = Utils.getFacing grid (u.userX, u.userY) u.userFacing
         c_ = {c | cellColor = color}
     in ListE.setIf (Utils.eqCoord c_) c_ grid
 
-saveCellValue : CSP.WorldId -> CSP.Cell -> String -> Cmd Msg
-saveCellValue wid c s =
-    CSP.putCellValueByWidByXByYByVal wid c.cellX c.cellY s ApplyValue
-
 applyValue : Grid -> CSP.User -> String -> Grid
-applyValue grid user s =
-    let c = Utils.getFacing grid (user.userX, user.userY) user.userFacing
+applyValue grid u s =
+    let c = Utils.getFacing grid (u.userX, u.userY) u.userFacing
         c_ = {c | cellValue = s}
     in ListE.setIf (Utils.eqCoord c_) c_ grid
+
+clearValue : Grid -> CSP.User -> Bool -> Grid
+clearValue grid u ok =
+    case ok of
+        False -> grid
+        True ->
+            let c = Utils.getFacing grid (u.userX, u.userY) u.userFacing
+                c_ = {c | cellValue = ""}
+            in ListE.setIf (Utils.eqCoord c_) c_ grid
 
 --------------------------------------------------------------------------------
 
 keyHandler : Model -> List K.Key -> (Model, Cmd Msg)
 keyHandler model keys =
     case keys of
-        [] -> ({ model | pressedKeys = [] }, Cmd.none)
-        (k::ks) -> case model.popupOpen of
-                       True -> popupKeyHandler model k ks
-                       False -> normalKeyHandler model k ks
+        [] ->
+            ({ model | pressedKeys = [] }, Cmd.none)
+        (k::ks) ->
+            case model.popupOpen of
+                True -> popupKeyHandler model k ks
+                False -> normalKeyHandler model k ks
 
 popupKeyHandler : Model -> K.Key -> List K.Key -> (Model, Cmd Msg)
 popupKeyHandler model k ks =
@@ -207,12 +214,20 @@ popupKeyHandler model k ks =
         K.Escape ->
             ({ model | popupOpen = False, userBuffer = ""}, Cmd.none)
         K.Enter ->
-            let c = Utils.getFacingM model
-                wid = model.worldId
-                s = model.userBuffer
-            in ( { model | popupOpen = False, userBuffer = ""}
-               , saveCellValue wid c s )
-        _ -> (model, Cmd.none)
+            closePopup model
+        _ ->
+            (model, Cmd.none)
+
+closePopup : Model -> (Model, Cmd Msg)
+closePopup model =
+    let c = Utils.getFacingM model
+        wid = model.worldId
+        s = Debug.log "Buffer" model.userBuffer
+        put = CSP.putCellValueByWidByXByYByVal
+        clear = CSP.putClearCellByWidByXByY
+        cmd = if s /= "" then put wid c.cellX c.cellY s ApplyValue
+              else clear wid c.cellX c.cellY ClearValue
+    in ({ model | popupOpen = False, userBuffer = "" }, cmd)
 
 normalKeyHandler : Model -> K.Key -> List K.Key -> (Model, Cmd Msg)
 normalKeyHandler model k ks =

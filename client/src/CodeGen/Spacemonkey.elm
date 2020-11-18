@@ -375,40 +375,8 @@ getUsersByWid capture_wid toMsg =
                 Nothing
             }
 
-putCellColorByWidByXByYByColor : (WorldId) -> Int -> Int -> Color -> (Result Http.Error  (Color)  -> msg) -> Cmd msg
-putCellColorByWidByXByYByColor capture_wid capture_x capture_y capture_color toMsg =
-    let
-        params =
-            List.filterMap identity
-            (List.concat
-                [])
-    in
-        Http.request
-            { method =
-                "PUT"
-            , headers =
-                []
-            , url =
-                Url.Builder.crossOrigin "http://localhost:8080"
-                    [ "cellColor"
-                    , (capture_wid |> String.fromInt)
-                    , (capture_x |> String.fromInt)
-                    , (capture_y |> String.fromInt)
-                    , (capture_color |> strEncColor)
-                    ]
-                    params
-            , body =
-                Http.emptyBody
-            , expect =
-                Http.expectJson toMsg jsonDecColor
-            , timeout =
-                Nothing
-            , tracker =
-                Nothing
-            }
-
 putMoveByUidByDirection : (UserId) -> Direction -> (Result Http.Error  (Direction)  -> msg) -> Cmd msg
-putMoveByUidByDirection capture_ud capture_direction toMsg =
+putMoveByUidByDirection capture_uid capture_direction toMsg =
     let
         params =
             List.filterMap identity
@@ -423,7 +391,7 @@ putMoveByUidByDirection capture_ud capture_direction toMsg =
             , url =
                 Url.Builder.crossOrigin "http://localhost:8080"
                     [ "move"
-                    , (capture_ud |> String.fromInt)
+                    , (capture_uid |> String.fromInt)
                     , (capture_direction |> strEncDirection)
                     ]
                     params
@@ -461,6 +429,69 @@ putRefaceByUidByDirection capture_uid capture_direction toMsg =
                 Http.emptyBody
             , expect =
                 Http.expectJson toMsg jsonDecDirection
+            , timeout =
+                Nothing
+            , tracker =
+                Nothing
+            }
+
+putCellColorByWidByXByYByColor : (WorldId) -> Int -> Int -> Color -> (Result Http.Error  (Color)  -> msg) -> Cmd msg
+putCellColorByWidByXByYByColor capture_wid capture_x capture_y capture_color toMsg =
+    let
+        params =
+            List.filterMap identity
+            (List.concat
+                [])
+    in
+        Http.request
+            { method =
+                "PUT"
+            , headers =
+                []
+            , url =
+                Url.Builder.crossOrigin "http://localhost:8080"
+                    [ "cellColor"
+                    , (capture_wid |> String.fromInt)
+                    , (capture_x |> String.fromInt)
+                    , (capture_y |> String.fromInt)
+                    , (capture_color |> strEncColor)
+                    ]
+                    params
+            , body =
+                Http.emptyBody
+            , expect =
+                Http.expectJson toMsg jsonDecColor
+            , timeout =
+                Nothing
+            , tracker =
+                Nothing
+            }
+
+putClearCellByWidByXByY : (WorldId) -> Int -> Int -> (Result Http.Error  (Bool)  -> msg) -> Cmd msg
+putClearCellByWidByXByY capture_wid capture_x capture_y toMsg =
+    let
+        params =
+            List.filterMap identity
+            (List.concat
+                [])
+    in
+        Http.request
+            { method =
+                "PUT"
+            , headers =
+                []
+            , url =
+                Url.Builder.crossOrigin "http://localhost:8080"
+                    [ "clearCell"
+                    , (capture_wid |> String.fromInt)
+                    , (capture_x |> String.fromInt)
+                    , (capture_y |> String.fromInt)
+                    ]
+                    params
+            , body =
+                Http.emptyBody
+            , expect =
+                Http.expectJson toMsg (Json.Decode.bool)
             , timeout =
                 Nothing
             , tracker =

@@ -79,12 +79,14 @@ type API =
   :<|> "user" :> Capture "uid" UserId :>
        Get '[JSON] (Maybe User)
   :<|> "users" :> Capture "wid" WorldId :> Get '[JSON] [User]
-  :<|> "cellColor" :> Capture "wid" WorldId :>
-       Capture "x" Int :> Capture "y" Int :> Capture "color" Color :>
-       Put '[JSON] Color
   :<|> "move" :> Capture "uid" UserId :>
        Capture "direction" Direction:> Put '[JSON] Direction
   :<|> "reface" :> Capture "uid" UserId :>
        Capture "direction" Direction:> Put '[JSON] Direction
+  :<|> "cellColor" :> Capture "wid" WorldId :>
+       Capture "x" Int :> Capture "y" Int :> Capture "color" Color :>
+       Put '[JSON] Color
+  :<|> "clearCell" :> Capture "wid" WorldId :> Capture "x" Int :>
+       Capture "y" Int :> Put '[JSON] Bool
   :<|> "cellValue" :> Capture "wid" WorldId :> Capture "x" Int :>
        Capture "y" Int :> Capture "val" T.Text :> Put '[JSON] T.Text

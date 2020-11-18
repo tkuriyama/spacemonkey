@@ -49,9 +49,10 @@ server pool =
   getMsgs' :<|>
   getUser' :<|>
   getUsers' :<|>
-  setCellColor' :<|>
   move' :<|>
   reface' :<|>
+  setCellColor' :<|>
+  clearCellValue' :<|>
   setCellValue'
   where
     getWorldId' = liftIO . getWorldId pool
@@ -60,9 +61,10 @@ server pool =
     getMsgs' wid n = liftIO $ getMsgs pool wid n
     getUser' = liftIO . getUser pool
     getUsers' = liftIO . getUsers pool
-    setCellColor' wid x y c = liftIO $ setCellColor pool wid x y c
     move' uid dir = liftIO $ move pool uid dir
     reface' uid dir = liftIO $ reface pool uid dir
+    setCellColor' wid x y c = liftIO $ setCellColor pool wid x y c
+    clearCellValue' wid x y = liftIO $ clearCellValue pool wid x y
     setCellValue' wid x y v = liftIO $ setCellValue pool wid x y v
 
 getWorldId :: CP -> SPE.Env -> IO (Maybe (SP.Key SP.World))
@@ -98,14 +100,6 @@ getUsers pool wid = flip runSqlPersistMPool pool $ do
   entity <- selectList [SP.UserEnv ==. wid] []
   pure $ entityVal <$> entity
 
-setCellColor :: CP -> SP.Key SP.World -> Int -> Int -> SPE.Color -> IO SPE.Color
-setCellColor pool wid x y c = do
-  flip runSqlPersistMPool pool $
-    updateWhere
-      [SP.CellEnv ==. wid, SP.CellX ==. x, SP.CellY ==. y]
-      [SP.CellColor =. c]
-  pure c
-
 move :: CP -> SP.Key SP.User -> SPE.Direction -> IO SPE.Direction
 move pool uid dir = do
   flip runSqlPersistMPool pool $
@@ -121,6 +115,22 @@ reface pool uid dir = do
   flip runSqlPersistMPool pool $
     update uid [SP.UserFacing =. dir]
   pure dir
+
+setCellColor :: CP -> SP.Key SP.World -> Int -> Int -> SPE.Color -> IO SPE.Color
+setCellColor pool wid x y c = do
+  flip runSqlPersistMPool pool $
+    updateWhere
+      [SP.CellEnv ==. wid, SP.CellX ==. x, SP.CellY ==. y]
+      [SP.CellColor =. c]
+  pure c
+
+clearCellValue :: CP -> SP.Key SP.World -> Int -> Int -> IO Bool
+clearCellValue pool wid x y = do
+  flip runSqlPersistMPool pool $
+    updateWhere
+      [SP.CellEnv ==. wid, SP.CellX ==. x, SP.CellY ==. y]
+      [SP.CellValue =. ""]
+  pure True
 
 setCellValue :: CP -> SP.Key SP.World -> Int -> Int -> T.Text -> IO T.Text
 setCellValue pool wid x y v = do

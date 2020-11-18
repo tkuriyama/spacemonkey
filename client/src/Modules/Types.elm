@@ -29,6 +29,7 @@ type Msg
     | Reface (Result Http.Error (CSP.Direction))
     | Recolor (Result Http.Error (CSP.Color))
     | ApplyValue (Result Http.Error (String))
+    | ClearValue (Result Http.Error (Bool))
 
 type alias Model
     = { env : CSP.Env
