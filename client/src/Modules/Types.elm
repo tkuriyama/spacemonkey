@@ -19,6 +19,8 @@ type Msg
     = WindowResize (Int, Int)
     | KeyMsg Keyboard.Msg
     | UpdateUserBuffer String
+    | ClickClosePopup
+    | ClickCancelClosePopup
     | NoAction
     | GetWorldId (Result Http.Error (Maybe CSP.WorldId))
     | GetWorld (Result Http.Error (Maybe CSP.World))

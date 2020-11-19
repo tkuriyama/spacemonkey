@@ -66,6 +66,10 @@ update msg model =
             keyHandler model <| K.update keyMsg model.pressedKeys
         UpdateUserBuffer s ->
             ({ model | userBuffer = (Debug.log "updateUB" s) }, Cmd.none)
+        ClickCancelClosePopup ->
+            cancelClosePopup model
+        ClickClosePopup ->
+            closePopup model
         NoAction ->
             (model, Cmd.none)
 
@@ -212,11 +216,15 @@ popupKeyHandler : Model -> K.Key -> List K.Key -> (Model, Cmd Msg)
 popupKeyHandler model k ks =
     case k of
         K.Escape ->
-            ({ model | popupOpen = False, userBuffer = ""}, Cmd.none)
+            cancelClosePopup model
         K.Enter ->
             closePopup model
         _ ->
             (model, Cmd.none)
+
+cancelClosePopup : Model -> (Model, Cmd Msg)
+cancelClosePopup model =
+    ({ model | popupOpen = False, userBuffer = "" }, Cmd.none)
 
 closePopup : Model -> (Model, Cmd Msg)
 closePopup model =

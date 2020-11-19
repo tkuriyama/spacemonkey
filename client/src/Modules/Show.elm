@@ -1,28 +1,30 @@
 module Modules.Show exposing (show, popup)
 
-import Bulma.Components exposing (modal, modalClose, modalBackground,
-                                  modalContent)
-import Bulma.Form exposing (..)
+import Bulma.Components as BulmaC
 import Bulma.Elements as BulmaE
+import Bulma.Form as BulmaF
 import Bulma.Modifiers as BulmaM
-import Color
-import Html exposing (Attribute, Html, div, i)
-import Html.Attributes as HtmlA exposing (class, value, placeholder)
-import Html.Events exposing (onInput)
+
+import Html exposing (Attribute, Html, div, i, br)
+import Html.Attributes as HtmlA
+import Html.Events as HtmlE
+
+import Color as Color
 import TypedSvg exposing (circle, svg, rect, line, text_)
 import TypedSvg.Attributes exposing (x, y, x1, y1, x2, y2, cx, cy, r, rx,
                                      fill, fillOpacity, opacity,
                                      stroke, strokeWidth, class,
                                      fontSize, fontFamily, fontWeight,
-                                     width, height,
+                                     width, height, rotate,
                                      textAnchor, dominantBaseline,
                                      viewBox)
 import TypedSvg.Core exposing (Svg, text)
-import TypedSvg.Types exposing (Paint(..), px, percent, Opacity(..),
+import TypedSvg.Types exposing (Paint(..), px, Opacity(..),
                                 FontWeight(..),
                                 AnchorAlignment (..), DominantBaseline (..))
 
 import CodeGen.Spacemonkey as CSP exposing (..)
+import Modules.BulmaAssets as BulmaAssets
 import Modules.Camera as Camera
 import Modules.Types exposing (..)
 import Modules.Utils as Utils
@@ -30,24 +32,10 @@ import Modules.Utils as Utils
 --------------------------------------------------------------------------------
 -- Bulma types
 
+type alias Button msg = Html msg
 type alias Control msg = Html msg
 type alias Modal msg = Html msg
-
 type alias IsModalOpen = Bool
-
-type alias InputModifiers msg =
-    { size : BulmaM.Size
-    , state : BulmaM.State
-    , color : BulmaM.Color
-    , expanded : Bool
-    , rounded : Bool
-    , readonly : Bool
-    , disabled : Bool
-    , iconLeft :
-        Maybe ( BulmaM.Size, List (Attribute msg), BulmaE.IconBody msg )
-    , iconRight :
-        Maybe ( BulmaM.Size, List (Attribute msg), BulmaE.IconBody msg )
-    }
 
 --------------------------------------------------------------------------------
 
@@ -152,36 +140,44 @@ showUser cellSize u =
 
 popup : IsModalOpen -> String -> Html Msg
 popup isOpen cellValue =
-    modal
+    BulmaC.modal
         isOpen
         []
-        [ modalBackground [] []
-        , modalContent []
-            [ cellValueInput cellValue
+        [ BulmaC.modalBackground
+              [ HtmlE.onClick ClickCancelClosePopup ]
+              []
+        , BulmaC.modalContent []
+            [ popupInput cellValue
+            , Html.br [] []
+            --, popupCancelButton
+            -- , popupOkButton
             ]
-        , modalClose BulmaM.Large [] []
+        , BulmaC.modalClose
+            BulmaM.Large
+            [ HtmlE.onClick ClickCancelClosePopup ]
+            []
         ]
 
-cellValueInput : String -> Control Msg
-cellValueInput val =
-    let controlAttrs = [ HtmlA.class "" ]
-        inputAttrs   = [ onInput (\s -> UpdateUserBuffer s)
-                       , HtmlA.value val
-                       ]
-    in controlText inputModifiers controlAttrs inputAttrs []
+popupInput : String -> Control Msg
+popupInput val =
+    BulmaF.controlText
+        BulmaAssets.popupInputMods
+        []
+        [ HtmlE.onInput (\s -> UpdateUserBuffer s)
+        , HtmlA.value val
+        ]
+        []
 
-inputModifiers : InputModifiers msg
-inputModifiers =
-    { size = BulmaM.Large
-    , state = BulmaM.Active
-    , color = BulmaM.Default
-    , expanded = True
-    , rounded = True
-    , readonly = False
-    , disabled = False
-    , iconLeft =
-        Just ( BulmaM.Large, [], i [ HtmlA.class "commenting" ] []) -- TODO doesn't work?
-    , iconRight = Nothing
---        Maybe ( BulmaM.Size, List (Attribute msg), BulmaE.IconBody msg )
-    }
+-- popupButton : BulmaE.ButtonModifiers msg -> msg -> String -> BulmaE.Button msg
+-- popupButton mods clickAction value =
+--     BulmaE.button mods
+--         [ onClick clickAction ]
+--         [ text value ]
 
+-- popupCancelButton : BulmaE.Button msg
+-- popupCancelButton =
+--     popupButton BulmaAssets.cancelButtonMods ClickCancelClosePopup "Cancel"
+
+-- popupOkButton : BulmaE.Button msg
+-- popupOkButton =
+--     popupButton BulmaAssets.okButtonMods ClickClosePopup "Save"
