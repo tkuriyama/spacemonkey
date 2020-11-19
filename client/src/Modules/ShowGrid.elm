@@ -1,15 +1,7 @@
-module Modules.Show exposing (show, popup)
-
-import Bulma.Components as BulmaC
-import Bulma.Elements as BulmaE
-import Bulma.Form as BulmaF
-import Bulma.Modifiers as BulmaM
-
-import Html exposing (Attribute, Html, div, i, br)
-import Html.Attributes as HtmlA
-import Html.Events as HtmlE
+module Modules.ShowGrid exposing (show)
 
 import Color as Color
+import Html exposing (Html, div)
 import TypedSvg exposing (circle, svg, rect, line, text_)
 import TypedSvg.Attributes exposing (x, y, x1, y1, x2, y2, cx, cy, r, rx,
                                      fill, fillOpacity, opacity,
@@ -19,23 +11,14 @@ import TypedSvg.Attributes exposing (x, y, x1, y1, x2, y2, cx, cy, r, rx,
                                      textAnchor, dominantBaseline,
                                      viewBox)
 import TypedSvg.Core exposing (Svg, text)
-import TypedSvg.Types exposing (Paint(..), px, Opacity(..),
+import TypedSvg.Types exposing (px, Paint(..), Opacity(..),
                                 FontWeight(..),
                                 AnchorAlignment (..), DominantBaseline (..))
 
 import CodeGen.Spacemonkey as CSP exposing (..)
-import Modules.BulmaAssets as BulmaAssets
 import Modules.Camera as Camera
 import Modules.Types exposing (..)
 import Modules.Utils as Utils
-
---------------------------------------------------------------------------------
--- Bulma types
-
-type alias Button msg = Html msg
-type alias Control msg = Html msg
-type alias Modal msg = Html msg
-type alias IsModalOpen = Bool
 
 --------------------------------------------------------------------------------
 
@@ -136,48 +119,3 @@ showUser cellSize u =
             []
        ]
 
---------------------------------------------------------------------------------
-
-popup : IsModalOpen -> String -> Html Msg
-popup isOpen cellValue =
-    BulmaC.modal
-        isOpen
-        []
-        [ BulmaC.modalBackground
-              [ HtmlE.onClick ClickCancelClosePopup ]
-              []
-        , BulmaC.modalContent []
-            [ popupInput cellValue
-            , Html.br [] []
-            --, popupCancelButton
-            -- , popupOkButton
-            ]
-        , BulmaC.modalClose
-            BulmaM.Large
-            [ HtmlE.onClick ClickCancelClosePopup ]
-            []
-        ]
-
-popupInput : String -> Control Msg
-popupInput val =
-    BulmaF.controlText
-        BulmaAssets.popupInputMods
-        []
-        [ HtmlE.onInput (\s -> UpdateUserBuffer s)
-        , HtmlA.value val
-        ]
-        []
-
--- popupButton : BulmaE.ButtonModifiers msg -> msg -> String -> BulmaE.Button msg
--- popupButton mods clickAction value =
---     BulmaE.button mods
---         [ onClick clickAction ]
---         [ text value ]
-
--- popupCancelButton : BulmaE.Button msg
--- popupCancelButton =
---     popupButton BulmaAssets.cancelButtonMods ClickCancelClosePopup "Cancel"
-
--- popupOkButton : BulmaE.Button msg
--- popupOkButton =
---     popupButton BulmaAssets.okButtonMods ClickClosePopup "Save"

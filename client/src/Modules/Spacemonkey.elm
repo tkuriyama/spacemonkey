@@ -15,7 +15,8 @@ import Json.Decode as Decode
 
 import CodeGen.Spacemonkey as CSP
 import Modules.Camera as Camera
-import Modules.Show as Show
+import Modules.ShowGrid as ShowGrid
+import Modules.ShowUI as ShowUI
 import Modules.Types exposing (..)
 import Modules.Utils as Utils
 
@@ -49,8 +50,8 @@ view : Model -> Html Msg
 view model =
     div
     []
-    [ Show.show model
-    , Show.popup model.popupOpen model.userBuffer
+    [ ShowGrid.show model
+    , ShowUI.popup model.popupOpen model.userBuffer
     ]
 
 

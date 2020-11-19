@@ -7,7 +7,7 @@ import Bulma.Modifiers as BulmaM
 import Html as Html
 
 --------------------------------------------------------------------------------
--- Modifiers Defaults
+-- Modifier Defaults
 
 type alias InputModifiers msg =
     { size : BulmaM.Size
@@ -51,7 +51,7 @@ defaultButtonMods =
     }
 
 --------------------------------------------------------------------------------
--- Modifiers Instances
+-- Modifier Instances
 
 popupInputMods : InputModifiers msg
 popupInputMods = defaultInputMods
