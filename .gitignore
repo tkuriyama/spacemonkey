@@ -2,7 +2,9 @@
 **.redo/*
 **/tmp/*
 **/elm.js
-client/all
 spacemonkey/dist/*
 db/*
 dbsqlite/*
+client/webfonts/*
+client/css/*
+*.DS_Store*
