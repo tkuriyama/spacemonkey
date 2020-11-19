@@ -11,7 +11,8 @@ The build commands are wrapped with [redo](https://redo.readthedocs.io/en/latest
 Note that the below client modules reside in `src/Modules/`, and the one specified in `src/Main.elm` will be built.
 
 
-## HelloServer Instances
+## Example HelloServer Instances
+
 ### Hello Server
 
 `HelloServer` is Spacemonkey's Hello World. To get it to work with `localhost`, you willl ikely need some method of dealing with CORS issues (e.g. [this post](https://alfilatov.com/posts/run-chrome-without-cors/)).
@@ -28,4 +29,4 @@ Similar to `HelloServerAcid`, with a different persistence backend on the server
 
 ## Spacemonkey
 
-A client for the Spacemonkey server, a small social network application.
+A client for the Spacemonkey server, a small social network application built around a grid.
