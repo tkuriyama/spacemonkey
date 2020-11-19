@@ -117,6 +117,10 @@ update msg model =
             ({model | grid = applyColor model.grid model.self color}, Cmd.none)
         Recolor (Err e) ->
             Utils.httpError model e
+        Retype (Ok ctype) ->
+            ({model | grid = applyCType model.grid model.self ctype}, Cmd.none)
+        Retype (Err e) ->
+            Utils.httpError model e
         ApplyValue (Ok s) ->
             ({model | grid = applyValue model.grid model.self s}, Cmd.none)
         ApplyValue (Err e) ->
@@ -184,6 +188,23 @@ applyColor grid u color =
         c_ = {c | cellColor = color}
     in ListE.setIf (Utils.eqCoord c_) c_ grid
 
+cycleCType : CSP.WorldId -> Grid -> CSP.User -> Cmd Msg
+cycleCType wid grid u =
+    let c = Utils.getFacing grid (u.userX, u.userY) u.userFacing
+        f = CSP.putCellCTypeByWidByXByYByCelltype wid c.cellX c.cellY
+    in case List.member c.cellCType [CSP.Std, CSP.Link, CSP.Link] of
+           True -> case c.cellCType of
+                       CSP.Std -> f CSP.Link Retype
+                       CSP.Link -> f CSP.Text Retype
+                       _ -> f CSP.Std Retype
+           _ -> Cmd.none
+
+applyCType : Grid -> CSP.User -> CSP.CellType -> Grid
+applyCType grid u ctype =
+    let c = Utils.getFacing grid (u.userX, u.userY) u.userFacing
+        c_ = {c | cellCType = ctype}
+    in ListE.setIf (Utils.eqCoord c_) c_ grid
+
 applyValue : Grid -> CSP.User -> String -> Grid
 applyValue grid u s =
     let c = Utils.getFacing grid (u.userX, u.userY) u.userFacing
@@ -239,7 +260,8 @@ closePopup model =
 normalKeyHandler : Model -> K.Key -> List K.Key -> (Model, Cmd Msg)
 normalKeyHandler model k ks =
     let mv = moveOrReface model.grid model.userId model.self
-        cycle = cycleColor model.worldId model.grid model.self
+        cycleC = cycleColor model.worldId model.grid model.self
+        cycleT = cycleCType model.worldId model.grid model.self
         model_ =
             case k of
                 K.Character "E" ->
@@ -258,8 +280,9 @@ normalKeyHandler model k ks =
                 K.Character "D" -> mv CSP.East
                 K.ArrowRight -> mv CSP.East
                 K.Character "A" -> mv CSP.West
-                K.Character "C" -> cycle
                 K.ArrowLeft -> mv CSP.West
+                K.Character "C" -> cycleC
+                K.Character "T" -> cycleT
                 _ -> Cmd.none
     in (model_, cmd)
 

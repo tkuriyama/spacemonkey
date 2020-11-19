@@ -9,7 +9,7 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as TIO (readFile, writeFile)
 import           System.Environment (getArgs)
 
-import qualified Helpers.SpacemonkeyEnum as SPE 
+import qualified Helpers.SpacemonkeyEnum as SPE
 
 --------------------------------------------------------------------------------
 
@@ -40,8 +40,7 @@ append' names t =
   sumToString (Proxy :: Proxy SPE.Color) "Color" <> br <>
   sumToString (Proxy :: Proxy SPE.CellType) "CellType" <> br <>
   sumToString (Proxy :: Proxy SPE.Direction) "Direction" <> br <>
-  cycleSum (Proxy :: Proxy SPE.Color) "Color" <> br <>
-  cycleSum (Proxy :: Proxy SPE.CellType) "CellType" <> br
+  cycleSum (Proxy :: Proxy SPE.Color) "Color" <> br
   where
     br = "\n"
     comment =

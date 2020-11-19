@@ -467,6 +467,38 @@ putCellColorByWidByXByYByColor capture_wid capture_x capture_y capture_color toM
                 Nothing
             }
 
+putCellCTypeByWidByXByYByCelltype : (WorldId) -> Int -> Int -> CellType -> (Result Http.Error  (CellType)  -> msg) -> Cmd msg
+putCellCTypeByWidByXByYByCelltype capture_wid capture_x capture_y capture_celltype toMsg =
+    let
+        params =
+            List.filterMap identity
+            (List.concat
+                [])
+    in
+        Http.request
+            { method =
+                "PUT"
+            , headers =
+                []
+            , url =
+                Url.Builder.crossOrigin "http://localhost:8080"
+                    [ "cellCType"
+                    , (capture_wid |> String.fromInt)
+                    , (capture_x |> String.fromInt)
+                    , (capture_y |> String.fromInt)
+                    , (capture_celltype |> strEncCellType)
+                    ]
+                    params
+            , body =
+                Http.emptyBody
+            , expect =
+                Http.expectJson toMsg jsonDecCellType
+            , timeout =
+                Nothing
+            , tracker =
+                Nothing
+            }
+
 putClearCellByWidByXByY : (WorldId) -> Int -> Int -> (Result Http.Error  (Bool)  -> msg) -> Cmd msg
 putClearCellByWidByXByY capture_wid capture_x capture_y toMsg =
     let
@@ -589,12 +621,4 @@ cycleColor val =
         Green -> Blue
         Blue -> Grey
         Grey -> White
-
-cycleCellType : CellType -> CellType
-cycleCellType val = 
-    case val of 
-        Std -> Link
-        Link -> Text
-        Text -> Fixed
-        Fixed -> Std
 

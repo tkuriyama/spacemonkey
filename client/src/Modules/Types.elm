@@ -29,6 +29,7 @@ type Msg
     | Move (Result Http.Error (CSP.Direction))
     | Reface (Result Http.Error (CSP.Direction))
     | Recolor (Result Http.Error (CSP.Color))
+    | Retype (Result Http.Error (CSP.CellType))
     | ApplyValue (Result Http.Error (String))
     | ClearValue (Result Http.Error (Bool))
 

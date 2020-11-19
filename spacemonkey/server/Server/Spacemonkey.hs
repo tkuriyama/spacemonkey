@@ -52,6 +52,7 @@ server pool =
   move' :<|>
   reface' :<|>
   setCellColor' :<|>
+  setCellCType' :<|>
   clearCellValue' :<|>
   setCellValue'
   where
@@ -64,6 +65,7 @@ server pool =
     move' uid dir = liftIO $ move pool uid dir
     reface' uid dir = liftIO $ reface pool uid dir
     setCellColor' wid x y c = liftIO $ setCellColor pool wid x y c
+    setCellCType' wid x y ct = liftIO $ setCellCType pool wid x y ct
     clearCellValue' wid x y = liftIO $ clearCellValue pool wid x y
     setCellValue' wid x y v = liftIO $ setCellValue pool wid x y v
 
@@ -123,6 +125,15 @@ setCellColor pool wid x y c = do
       [SP.CellEnv ==. wid, SP.CellX ==. x, SP.CellY ==. y]
       [SP.CellColor =. c]
   pure c
+
+setCellCType :: CP -> SP.Key SP.World -> Int -> Int -> SPE.CellType ->
+                IO SPE.CellType
+setCellCType pool wid x y ct = do
+  flip runSqlPersistMPool pool $
+    updateWhere
+      [SP.CellEnv ==. wid, SP.CellX ==. x, SP.CellY ==. y]
+      [SP.CellCType =. ct]
+  pure ct
 
 clearCellValue :: CP -> SP.Key SP.World -> Int -> Int -> IO Bool
 clearCellValue pool wid x y = do

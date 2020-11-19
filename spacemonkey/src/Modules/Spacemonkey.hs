@@ -86,6 +86,9 @@ type API =
   :<|> "cellColor" :> Capture "wid" WorldId :>
        Capture "x" Int :> Capture "y" Int :> Capture "color" Color :>
        Put '[JSON] Color
+  :<|> "cellCType" :> Capture "wid" WorldId :>
+       Capture "x" Int :> Capture "y" Int :> Capture "celltype" CellType :>
+       Put '[JSON] CellType
   :<|> "clearCell" :> Capture "wid" WorldId :> Capture "x" Int :>
        Capture "y" Int :> Put '[JSON] Bool
   :<|> "cellValue" :> Capture "wid" WorldId :> Capture "x" Int :>
