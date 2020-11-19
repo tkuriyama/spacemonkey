@@ -176,11 +176,11 @@ applyReface u dir = { u | userFacing = dir }
 cycleColor : CSP.WorldId -> Grid -> CSP.User -> Cmd Msg
 cycleColor wid grid u =
     let c = Utils.getFacing grid (u.userX, u.userY) u.userFacing
-    in case c.cellCType of
-           CSP.Std -> let f = CSP.putCellColorByWidByXByYByColor
-                          color = CSP.cycleColor c.cellColor
-                      in f wid c.cellX c.cellY color Recolor
-           _ -> Cmd.none
+    in case List.member c.cellCType [CSP.Std, CSP.Link, CSP.Text] of
+           True -> let f = CSP.putCellColorByWidByXByYByColor
+                       color = CSP.cycleColor c.cellColor
+                   in f wid c.cellX c.cellY color Recolor
+           False -> Cmd.none
 
 applyColor : Grid -> CSP.User -> CSP.Color -> Grid
 applyColor grid u color =
@@ -192,7 +192,7 @@ cycleCType : CSP.WorldId -> Grid -> CSP.User -> Cmd Msg
 cycleCType wid grid u =
     let c = Utils.getFacing grid (u.userX, u.userY) u.userFacing
         f = CSP.putCellCTypeByWidByXByYByCelltype wid c.cellX c.cellY
-    in case List.member c.cellCType [CSP.Std, CSP.Link, CSP.Link] of
+    in case List.member c.cellCType [CSP.Std, CSP.Link, CSP.Text] of
            True -> case c.cellCType of
                        CSP.Std -> f CSP.Link Retype
                        CSP.Link -> f CSP.Text Retype

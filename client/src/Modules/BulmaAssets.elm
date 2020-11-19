@@ -68,3 +68,5 @@ okButtonMods : BulmaE.ButtonModifiers msg
 okButtonMods =
     { defaultButtonMods | color = BulmaM.Primary }
 
+
+

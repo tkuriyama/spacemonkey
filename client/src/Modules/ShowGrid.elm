@@ -1,7 +1,9 @@
 module Modules.ShowGrid exposing (show)
 
+import Html as Html exposing (Html, div)
+import Html.Attributes as HtmlA
+
 import Color as Color
-import Html exposing (Html, div)
 import TypedSvg exposing (circle, svg, rect, line, text_)
 import TypedSvg.Attributes exposing (x, y, x1, y1, x2, y2, cx, cy, r, rx,
                                      fill, fillOpacity, opacity,
@@ -16,6 +18,7 @@ import TypedSvg.Types exposing (px, Paint(..), Opacity(..),
                                 AnchorAlignment (..), DominantBaseline (..))
 
 import CodeGen.Spacemonkey as CSP exposing (..)
+import Modules.BulmaAssets as BulmaAssets
 import Modules.Camera as Camera
 import Modules.Types exposing (..)
 import Modules.Utils as Utils
@@ -48,7 +51,6 @@ showCell : Float -> CSP.Cell -> List (Svg msg)
 showCell cellSize c =
     let (cellX, cellY) =
             (toFloat c.cellX * cellSize, toFloat c.cellY * cellSize)
-        dispText = Utils.stringHead c.cellValue
     in [ rect
              [ x <| px <| cellX
              , y <| px <| cellY
@@ -64,13 +66,21 @@ showCell cellSize c =
              , y <| px <| cellY + cellSize - cellSize * 0.45
              , fontSize <| px <| cellSize * 0.85
              , fontFamily ["Consolas", "monaco", "monospace"]
-             -- , fontWeight FontWeightBold
              , textAnchor AnchorMiddle
              , dominantBaseline DominantBaselineMiddle
              , fill <| Paint Color.white
              ]
-             [ text dispText ]
+             [ showCellContent c.cellCType c.cellValue
+             ]
        ]
+
+showCellContent : CSP.CellType -> String -> Html msg
+showCellContent ctype s =
+    case ctype of
+        CSP.Std -> text <| Utils.stringHead s
+        CSP.Link -> text "🔗"
+        CSP.Text -> text "📝"
+        _ -> text ""
 
 mapColor : CSP.Color -> Color.Color
 mapColor color =
