@@ -54,12 +54,6 @@ defaultButtonMods =
 --------------------------------------------------------------------------------
 -- Modifier Instances
 
-popupInputMods : InputModifiers msg
-popupInputMods =
-    let iconLeft =
-            Just (BulmaM.Large, [], Html.i [HtmlA.class "fas fa-comment"] [])
-    in { defaultInputMods | iconLeft = iconLeft }
-
 cancelButtonMods : BulmaE.ButtonModifiers msg
 cancelButtonMods =
     { defaultButtonMods | color = BulmaM.Light }
@@ -68,5 +62,14 @@ okButtonMods : BulmaE.ButtonModifiers msg
 okButtonMods =
     { defaultButtonMods | color = BulmaM.Primary }
 
+stdInputMods : InputModifiers msg
+stdInputMods =
+    let iconLeft =
+            Just (BulmaM.Large, [], Html.i [HtmlA.class "fas fa-comment"] [])
+    in { defaultInputMods | iconLeft = iconLeft }
 
-
+linkInputMods : InputModifiers msg
+linkInputMods =
+    let iconLeft =
+            Just (BulmaM.Large, [], Html.i [HtmlA.class "fas fa-link"] [])
+    in { defaultInputMods | iconLeft = iconLeft }

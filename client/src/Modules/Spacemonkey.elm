@@ -46,11 +46,12 @@ initModel flags =
 
 view : Model -> Html Msg
 view model =
-    div
-    []
-    [ ShowGrid.show model
-    , ShowUI.popup model.popupOpen model.userBuffer
-    ]
+    let c = Utils.getFacingM model
+    in div
+        []
+        [ ShowGrid.show model
+        , ShowUI.popup model.popupOpen c.cellCType model.userBuffer
+        ]
 
 
 --------------------------------------------------------------------------------
@@ -64,7 +65,7 @@ update msg model =
         KeyMsg keyMsg ->
             keyHandler model <| K.update keyMsg model.pressedKeys
         UpdateUserBuffer s ->
-            ({ model | userBuffer = (Debug.log "updateUB" s) }, Cmd.none)
+            ({ model | userBuffer = s }, Cmd.none)
         ClickCancelClosePopup ->
             cancelClosePopup model
         ClickClosePopup ->
@@ -265,8 +266,8 @@ normalKeyHandler model k ks =
         model_ =
             case k of
                 K.Character "E" ->
-                    let c = Utils.getFacingM model
-                    in case canEditText c of
+                    let c = (Utils.getFacingM model)
+                    in case canEditValue c of
                            True -> { model | popupOpen = True
                                    , userBuffer = c.cellValue }
                            False -> model
@@ -286,11 +287,10 @@ normalKeyHandler model k ks =
                 _ -> Cmd.none
     in (model_, cmd)
 
-canEditText : CSP.Cell -> Bool
-canEditText c = c.cellCType == CSP.Std && c.cellColor /= CSP.White
-
-canEditType : CSP.Cell -> Bool
-canEditType c = c.cellCType /= CSP.Fixed
+canEditValue : CSP.Cell -> Bool
+canEditValue c =
+    (c.cellCType == CSP.Std && c.cellColor /= CSP.White) ||
+    List.member c.cellCType [CSP.Link, CSP.Text]
 
 --------------------------------------------------------------------------------
 
