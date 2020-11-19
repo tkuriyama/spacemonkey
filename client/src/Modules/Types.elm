@@ -1,7 +1,6 @@
 module Modules.Types exposing (..)
 
 import List.Extra as ListE
-import Maybe.Extra as MaybeE
 
 import Keyboard exposing (Key(..))
 

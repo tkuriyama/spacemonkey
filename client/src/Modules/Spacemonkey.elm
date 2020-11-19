@@ -3,14 +3,12 @@ module Modules.Spacemonkey exposing (main)
 
 import String exposing (fromInt)
 import List.Extra as ListE
-import Update.Extra as UpdateE
 
 import Browser exposing (element)
 import Browser.Events exposing (onResize)
 import Keyboard as K
 
-import Html exposing (Html, div, text, button, input, br)
-import Html.Attributes exposing (class, value, placeholder)
+import Html exposing (Html, div)
 import Json.Decode as Decode
 
 import CodeGen.Spacemonkey as CSP

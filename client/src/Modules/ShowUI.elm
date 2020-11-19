@@ -30,7 +30,8 @@ popup isOpen cellValue =
         []
         [ BulmaC.modalBackground
               [ HtmlE.onClick ClickCancelClosePopup
-              , HtmlA.style "opacity" "0.5" ]
+              , HtmlA.style "opacity" "0.5"
+              ]
               []
         , BulmaC.modalContent
               [ HtmlA.style "background-color" "darkgrey"
@@ -40,8 +41,8 @@ popup isOpen cellValue =
               , Html.div
                     [ HtmlA.style "font-size" "25px"
                     , HtmlA.style "margin" "10px" ]
-                    [ Html.text "Edit Cell Value" ]
-              , Html.br [] [] 
+                    [ Html.text "Edit Cell Text" ]
+              , Html.br [] []
               , popupInput cellValue
               , Html.br [] []
               , div

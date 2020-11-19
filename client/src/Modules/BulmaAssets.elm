@@ -5,6 +5,7 @@ import Bulma.Form as BulmaF
 import Bulma.Modifiers as BulmaM
 
 import Html as Html
+import Html.Attributes as HtmlA
 
 --------------------------------------------------------------------------------
 -- Modifier Defaults
@@ -54,11 +55,16 @@ defaultButtonMods =
 -- Modifier Instances
 
 popupInputMods : InputModifiers msg
-popupInputMods = defaultInputMods
+popupInputMods =
+    let iconLeft =
+            Just (BulmaM.Large, [], Html.i [HtmlA.class "fas fa-comment"] [])
+    in { defaultInputMods | iconLeft = iconLeft }
 
 cancelButtonMods : BulmaE.ButtonModifiers msg
-cancelButtonMods = { defaultButtonMods | color = BulmaM.Light }
+cancelButtonMods =
+    { defaultButtonMods | color = BulmaM.Light }
 
 okButtonMods : BulmaE.ButtonModifiers msg
-okButtonMods = { defaultButtonMods | color = BulmaM.Primary }
+okButtonMods =
+    { defaultButtonMods | color = BulmaM.Primary }
 
