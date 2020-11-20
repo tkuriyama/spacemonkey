@@ -243,18 +243,22 @@ popupOkButton =
 
 modalBodyAttrs : List (Html.Attribute msg)
 modalBodyAttrs =
-    [ HtmlA.style "background-color" "darkgrey" ]
+    [ HtmlA.style "background-color" "darkgrey"
+    ]
+
 
 textStdAttrs : List (Html.Attribute msg)
 textStdAttrs =
     [ HtmlA.style "font-size" "20px"
     , HtmlA.style "font-family" "Consolas, monaco, monospace"
-    , HtmlA.style "margin" "10px"
+    , HtmlA.style "margin-left" "10px"
+    , HtmlA.style "margin-right" "10px"
     ]
 
 textLargeAttrs : List (Html.Attribute msg)
 textLargeAttrs =
     [ HtmlA.style "font-size" "25px"
     , HtmlA.style "font-family" "Consolas, monaco, monospace"
-    , HtmlA.style "margin" "10px"
+    , HtmlA.style "margin-left" "10px"
+    , HtmlA.style "margin-right" "10px"
     ]
