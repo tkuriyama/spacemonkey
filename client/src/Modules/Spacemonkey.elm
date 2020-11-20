@@ -50,7 +50,7 @@ view model =
     in div
         []
         [ ShowGrid.show model
-        , ShowUI.popup model.popupOpen c.cellCType model.userBuffer
+        , ShowUI.popup model.modalOpts c.cellCType model.userBuffer
         ]
 
 
@@ -70,6 +70,14 @@ update msg model =
             cancelClosePopup model
         ClickClosePopup ->
             closePopup model
+        ClickEnterTextEditMode ->
+            let mo = model.modalOpts
+                mo_ = { mo | textEditMode = True }
+            in ({model | modalOpts = mo_}, Cmd.none)
+        ClickExitTextEditMode ->
+            let mo = model.modalOpts
+                mo_ = { mo | textEditMode = False }
+            in ({model | modalOpts = mo_}, Cmd.none)
         NoAction ->
             (model, Cmd.none)
 
@@ -229,7 +237,7 @@ keyHandler model keys =
         [] ->
             ({ model | pressedKeys = [] }, Cmd.none)
         (k::ks) ->
-            case model.popupOpen of
+            case model.modalOpts.popupOpen of
                 True -> popupKeyHandler model k ks
                 False -> normalKeyHandler model k ks
 
@@ -245,7 +253,7 @@ popupKeyHandler model k ks =
 
 cancelClosePopup : Model -> (Model, Cmd Msg)
 cancelClosePopup model =
-    ({ model | popupOpen = False, userBuffer = "" }, Cmd.none)
+    ({ model | modalOpts = defaultModalOpts, userBuffer = "" }, Cmd.none)
 
 closePopup : Model -> (Model, Cmd Msg)
 closePopup model =
@@ -256,7 +264,7 @@ closePopup model =
         clear = CSP.putClearCellByWidByXByY
         cmd = if s /= "" then put wid c.cellX c.cellY s ApplyValue
               else clear wid c.cellX c.cellY ClearValue
-    in ({ model | popupOpen = False, userBuffer = "" }, cmd)
+    in ({ model | modalOpts = defaultModalOpts, userBuffer = "" }, cmd)
 
 normalKeyHandler : Model -> K.Key -> List K.Key -> (Model, Cmd Msg)
 normalKeyHandler model k ks =
@@ -267,8 +275,10 @@ normalKeyHandler model k ks =
             case k of
                 K.Character "E" ->
                     let c = (Utils.getFacingM model)
+                        mo = model.modalOpts
+                        mo_ = { mo | popupOpen = True }
                     in case canEditValue c of
-                           True -> { model | popupOpen = True
+                           True -> { model | modalOpts = mo_
                                    , userBuffer = c.cellValue }
                            False -> model
                 _ -> model

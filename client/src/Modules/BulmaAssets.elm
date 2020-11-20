@@ -24,6 +24,16 @@ type alias InputModifiers msg =
         Maybe ( BulmaM.Size, List (Html.Attribute msg), BulmaE.IconBody msg )
     }
 
+type alias TextAreaModifiers =
+    { size : BulmaM.Size
+    , state : BulmaM.State
+    , color : BulmaM.Color
+    , readonly : Bool
+    , disabled : Bool
+    }
+
+--------------------------------------------------------------------------------
+
 defaultInputMods : InputModifiers msg
 defaultInputMods =
     { size = BulmaM.Large
@@ -35,6 +45,15 @@ defaultInputMods =
     , disabled = False
     , iconLeft = Nothing
     , iconRight = Nothing
+    }
+
+defaultTextAreaMods : TextAreaModifiers
+defaultTextAreaMods =
+    { size = BulmaM.Standard
+    , state = BulmaM.Active
+    , color = BulmaM.Default
+    , readonly = False
+    , disabled = False
     }
 
 defaultButtonMods : BulmaE.ButtonModifiers msg
@@ -53,6 +72,11 @@ defaultButtonMods =
 
 --------------------------------------------------------------------------------
 -- Modifier Instances
+
+editButtonMods : BulmaE.ButtonModifiers msg
+editButtonMods =
+    { defaultButtonMods | color = BulmaM.Info }
+
 
 cancelButtonMods : BulmaE.ButtonModifiers msg
 cancelButtonMods =
@@ -73,3 +97,11 @@ linkInputMods =
     let iconLeft =
             Just (BulmaM.Large, [], Html.i [HtmlA.class "fas fa-link"] [])
     in { defaultInputMods | iconLeft = iconLeft }
+
+textEditAreaMods : TextAreaModifiers
+textEditAreaMods =
+    { defaultTextAreaMods | readonly = False }
+
+viewTextAreaMods : TextAreaModifiers
+viewTextAreaMods =
+    { defaultTextAreaMods | readonly = True }

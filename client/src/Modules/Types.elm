@@ -9,10 +9,10 @@ import Http exposing (Error)
 
 import CodeGen.Spacemonkey as CSP
 
-type alias Flags =
-    { windowWidth : Int
-    , windowHeight : Int
-    }
+type alias Flags
+    = { windowWidth : Int
+      , windowHeight : Int
+      }
 
 type Msg
     = WindowResize (Int, Int)
@@ -20,6 +20,8 @@ type Msg
     | UpdateUserBuffer String
     | ClickClosePopup
     | ClickCancelClosePopup
+    | ClickEnterTextEditMode
+    | ClickExitTextEditMode
     | NoAction
     | GetWorldId (Result Http.Error (Maybe CSP.WorldId))
     | GetWorld (Result Http.Error (Maybe CSP.World))
@@ -44,7 +46,7 @@ type alias Model
       , others : List CSP.User
       , viewOpts : ViewOpts
       , pressedKeys : List Key
-      , popupOpen : Bool
+      , modalOpts : ModalOpts
       , errorMsg : Maybe String
       }
 
@@ -57,6 +59,11 @@ type alias ViewOpts
       , windowHeight : Int
       , cellSize : Int
       , camera : (Point, Point)
+      }
+
+type alias ModalOpts
+    = { popupOpen : Bool
+      , textEditMode : Bool
       }
 
 --------------------------------------------------------------------------------
@@ -85,7 +92,7 @@ defaultModel =
                  , cellSize = 40
                  }
     , pressedKeys = []
-    , popupOpen = False
+    , modalOpts = defaultModalOpts
     , errorMsg = Nothing
     }
 
@@ -97,4 +104,10 @@ defaultCell =
     , cellColor = CSP.White
     , cellValue = ""
     , cellCType = CSP.Std
+    }
+
+defaultModalOpts : ModalOpts
+defaultModalOpts =
+    { popupOpen = False
+    , textEditMode = False
     }
