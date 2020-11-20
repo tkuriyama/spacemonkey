@@ -530,8 +530,8 @@ putClearCellByWidByXByY capture_wid capture_x capture_y toMsg =
                 Nothing
             }
 
-putCellValueByWidByXByYByVal : (WorldId) -> Int -> Int -> String -> (Result Http.Error  (String)  -> msg) -> Cmd msg
-putCellValueByWidByXByYByVal capture_wid capture_x capture_y capture_val toMsg =
+putCellValueByWidByXByY : (WorldId) -> Int -> Int -> String -> (Result Http.Error  (String)  -> msg) -> Cmd msg
+putCellValueByWidByXByY capture_wid capture_x capture_y body toMsg =
     let
         params =
             List.filterMap identity
@@ -549,11 +549,10 @@ putCellValueByWidByXByYByVal capture_wid capture_x capture_y capture_val toMsg =
                     , (capture_wid |> String.fromInt)
                     , (capture_x |> String.fromInt)
                     , (capture_y |> String.fromInt)
-                    , (capture_val)
                     ]
                     params
             , body =
-                Http.emptyBody
+                Http.jsonBody (Json.Encode.string body)
             , expect =
                 Http.expectJson toMsg (Json.Decode.string)
             , timeout =

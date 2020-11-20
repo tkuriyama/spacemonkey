@@ -252,7 +252,7 @@ closePopup model =
     let c = Utils.getFacingM model
         wid = model.worldId
         s = Debug.log "Buffer" model.userBuffer
-        put = CSP.putCellValueByWidByXByYByVal
+        put = CSP.putCellValueByWidByXByY
         clear = CSP.putClearCellByWidByXByY
         cmd = if s /= "" then put wid c.cellX c.cellY s ApplyValue
               else clear wid c.cellX c.cellY ClearValue

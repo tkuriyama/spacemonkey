@@ -92,4 +92,4 @@ type API =
   :<|> "clearCell" :> Capture "wid" WorldId :> Capture "x" Int :>
        Capture "y" Int :> Put '[JSON] Bool
   :<|> "cellValue" :> Capture "wid" WorldId :> Capture "x" Int :>
-       Capture "y" Int :> Capture "val" T.Text :> Put '[JSON] T.Text
+       Capture "y" Int :> ReqBody '[JSON] T.Text :> Put '[JSON] T.Text
