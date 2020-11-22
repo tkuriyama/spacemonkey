@@ -69,7 +69,7 @@ update msg model =
         ClickCancelClosePopup ->
             cancelClosePopup model 
         ClickClosePopup ->
-            closePopup model defaultModalOpts
+            closePopup model defaultModalOpts True
         ClickEnterTextEditMode ->
             let mo = model.modalOpts
                 mo_ = { mo | textEditMode = True }
@@ -77,7 +77,7 @@ update msg model =
         ClickExitTextEditMode ->
             let mo = model.modalOpts
                 mo_ = { mo | textEditMode = False }
-            in closePopup model mo_
+            in closePopup model mo_ False
         NoAction ->
             (model, Cmd.none)
 
@@ -247,7 +247,7 @@ popupKeyHandler model k ks =
         K.Escape ->
             cancelClosePopup model
         K.Enter ->
-            closePopup model defaultModalOpts
+            closePopup model defaultModalOpts True
         _ ->
             (model, Cmd.none)
 
@@ -255,16 +255,17 @@ cancelClosePopup : Model -> (Model, Cmd Msg)
 cancelClosePopup model =
     ({ model | modalOpts = defaultModalOpts, userBuffer = "" }, Cmd.none)
 
-closePopup : Model -> ModalOpts -> (Model, Cmd Msg)
-closePopup model mo =
+closePopup : Model -> ModalOpts -> Bool -> (Model, Cmd Msg)
+closePopup model mo clearBuffer =
     let c = Utils.getFacingM model
         wid = model.worldId
         s = model.userBuffer
         put = CSP.putCellValueByWidByXByY
         clear = CSP.putClearCellByWidByXByY
+        buffer = if clearBuffer then "" else model.userBuffer
         cmd = if s /= "" then put wid c.cellX c.cellY s ApplyValue
               else clear wid c.cellX c.cellY ClearValue
-    in ({ model | modalOpts = mo, userBuffer = "" }, cmd)
+    in ({ model | modalOpts = mo, userBuffer = buffer }, cmd)
 
 normalKeyHandler : Model -> K.Key -> List K.Key -> (Model, Cmd Msg)
 normalKeyHandler model k ks =
