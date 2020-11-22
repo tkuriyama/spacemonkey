@@ -27,6 +27,11 @@ An iteration of `HelloServer` that is materially the same from the client's pers
 Similar to `HelloServerAcid`, with a different persistence backend on the server side and marginally different API.
 
 
+<hr>
+
 ## Spacemonkey
 
-A client for the Spacemonkey server, a small social network application built around a grid.
+A client for the Spacemonkey server, a small social network application built around a grid (inspired by the [Recurse Center](https://www.recurse.com/).
+
+UI elements are implemented with a combination of SVG and [Bulma](https://bulma.io/) components (via [`elm-bulma`](https://package.elm-lang.org/packages/surprisetalk/elm-bulma/latest/).
+
